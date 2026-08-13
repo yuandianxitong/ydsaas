@@ -1,0 +1,1 @@
+import{d as e,r as t,y as s,M as l,e as n,f as o,T as a}from"./index-CPmTDMOp.js";const r=e({__name:"webview",setup(e){const r=t("");return s(e=>{(null==e?void 0:e.url)&&(r.value=decodeURIComponent(e.url)),(null==e?void 0:e.title)&&l({title:decodeURIComponent(e.title)})}),(e,t)=>{const s=a;return n(),o(s,{src:r.value},null,8,["src"])}}});export{r as default};

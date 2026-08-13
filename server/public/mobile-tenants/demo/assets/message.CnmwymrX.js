@@ -1,0 +1,1 @@
+import{ab as e}from"./index-CPmTDMOp.js";const s={getList:s=>e.get("/api/message/list",s),getUnreadCount:()=>e.get("/api/message/unread-count"),markAsRead:s=>e.post("/api/message/read",{ids:s})};export{s as m};

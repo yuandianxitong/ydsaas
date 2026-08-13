@@ -1,0 +1,12 @@
+node_modules/
+.nuxt/
+.output/
+dist/
+*.log
+.DS_Store
+
+# 插件闭源边界：插件源码与 sync 生成物不入 git（同 uniapp/tenant 约定）
+# 插件源码由 server/plugins/<code>/pc 通过 scripts/sync-plugin-pc.mjs 复制而来，
+# 生成路由清单亦由该脚本产出；dev/build 前会自动重新生成，无需入库。
+/plugins/
+/generated/

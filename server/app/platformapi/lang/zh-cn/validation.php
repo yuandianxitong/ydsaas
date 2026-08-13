@@ -1,0 +1,32 @@
+<?php
+// 平台 API 验证消息 - 中文
+
+return [
+    'username_required'          => '用户名不能为空',
+    'username_length'            => '用户名长度 2-50',
+    'password_required'          => '密码不能为空',
+    'password_length'            => '密码长度 6-100',
+    'tenant_code_required'       => '租户编码不能为空',
+    'tenant_code_alpha_dash'     => '租户编码只能包含字母、数字、短横线和下划线',
+    'tenant_code_length'         => '租户编码长度 3-50',
+    'tenant_name_required'       => '租户名称不能为空',
+    'tenant_name_length'         => '租户名称长度 2-100',
+    'plan_id_integer'            => 'plan_id 必须是整数',
+    'plan_id_gte'                => 'plan_id 不能为负',
+    'storage_limit_integer'      => 'storage_limit_bytes 必须是整数',
+    'status_integer'             => 'status 必须是整数',
+    'status_in'                  => 'status 取值为 0 或 1',
+    'admin_username_required'    => '管理员用户名不能为空',
+    'admin_username_alpha_num'   => '管理员用户名只能包含字母和数字',
+    'admin_username_length'      => '管理员用户名长度 4-30',
+    'admin_password_required'    => '管理员密码不能为空',
+    'admin_password_length'      => '管理员密码长度 6-30',
+    'plan_code_required'         => '套餐编码不能为空',
+    'plan_code_alpha_dash'       => '套餐编码只能包含字母数字短横下划线',
+    'plan_code_length'           => '套餐编码长度 2-50',
+    'plan_name_required'         => '套餐名称不能为空',
+    'feature_code_required'      => '功能编码不能为空',
+    'feature_code_length'        => '功能编码长度 2-100',
+    'feature_name_required'      => '功能名称不能为空',
+    'captcha_required'           => '验证码不能为空',
+];

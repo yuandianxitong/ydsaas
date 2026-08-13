@@ -1,0 +1,76 @@
+# IDE
+.idea/
+.vscode/
+
+# Claude Code
+.claude/
+CLAUDE.md
+.superpowers/
+AGENTS.md
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dependencies
+node_modules/
+vendor/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Build output
+admin/dist/
+uniapp/dist/
+pc/dist/
+/server/public/tenant/
+/server/public/platform/
+/server/public/pc/
+
+# pnpm local store
+.pnpm-store/
+
+# Documentation (internal, not published via git)
+docs/
+
+# Tests — kept locally, not published
+**/tests/
+**/__tests__/
+**/*.test.ts
+**/*.test.js
+**/*.test.mjs
+**/*.spec.ts
+**/*.spec.js
+**/*Test.php
+
+# Install lock
+server/config/install.lock
+
+# Runtime：忽略内容，保留骨架（.gitkeep + 子目录 .gitignore）；属主仍须部署后 saas:ensure-runtime
+server/runtime/**
+!server/runtime/.gitignore
+!server/runtime/.gitkeep
+!server/runtime/cache/
+!server/runtime/cache/.gitignore
+!server/runtime/cache/.gitkeep
+!server/runtime/log/
+!server/runtime/log/.gitignore
+!server/runtime/log/.gitkeep
+!server/runtime/temp/
+!server/runtime/temp/.gitignore
+!server/runtime/temp/.gitkeep
+!server/runtime/session/
+!server/runtime/session/.gitignore
+!server/runtime/session/.gitkeep
+!server/runtime/mobile-builds/
+!server/runtime/mobile-builds/.gitignore
+!server/runtime/mobile-builds/.gitkeep
+!server/runtime/mobile-builds/_keys/
+!server/runtime/mobile-builds/_keys/.gitignore
+!server/runtime/mobile-builds/_keys/.gitkeep
+server/public/storage/uploads/
+
+# Logs
+*.log

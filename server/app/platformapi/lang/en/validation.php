@@ -1,0 +1,32 @@
+<?php
+// Platform API validation messages - English
+
+return [
+    'username_required'          => 'Username is required',
+    'username_length'            => 'Username must be 2-50 characters',
+    'password_required'          => 'Password is required',
+    'password_length'            => 'Password must be 6-100 characters',
+    'tenant_code_required'       => 'Tenant code is required',
+    'tenant_code_alpha_dash'     => 'Tenant code can only contain letters, numbers, dashes and underscores',
+    'tenant_code_length'         => 'Tenant code must be 3-50 characters',
+    'tenant_name_required'       => 'Tenant name is required',
+    'tenant_name_length'         => 'Tenant name must be 2-100 characters',
+    'plan_id_integer'            => 'Plan ID must be an integer',
+    'plan_id_gte'                => 'Plan ID cannot be negative',
+    'storage_limit_integer'      => 'Storage limit must be an integer',
+    'status_integer'             => 'Status must be an integer',
+    'status_in'                  => 'Status must be 0 or 1',
+    'admin_username_required'    => 'Admin username is required',
+    'admin_username_alpha_num'   => 'Admin username can only contain letters and numbers',
+    'admin_username_length'      => 'Admin username must be 4-30 characters',
+    'admin_password_required'    => 'Admin password is required',
+    'admin_password_length'      => 'Admin password must be 6-30 characters',
+    'plan_code_required'         => 'Plan code is required',
+    'plan_code_alpha_dash'       => 'Plan code can only contain letters, numbers, dashes and underscores',
+    'plan_code_length'           => 'Plan code must be 2-50 characters',
+    'plan_name_required'         => 'Plan name is required',
+    'feature_code_required'      => 'Feature code is required',
+    'feature_code_length'        => 'Feature code must be 2-100 characters',
+    'feature_name_required'      => 'Feature name is required',
+    'captcha_required'           => 'Captcha is required',
+];

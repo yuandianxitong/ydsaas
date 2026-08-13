@@ -1,0 +1,165 @@
+/* ============================================================
+ * Element Plus 全局覆盖层
+ *
+ * ⚠️ 选择器统一加 `html` 前缀提升一级优先级：vite 的
+ * ElementPlusResolver({ importStyle: "sass" }) 按组件懒注入 EP 样式，
+ * 加载时机晚于本文件——同优先级选择器会被 EP 自身样式反超。
+ * `html .el-xxx` (0,1,1) 稳定压过 EP 的 `.el-xxx` (0,1,0)，不依赖加载顺序。
+ * ============================================================ */
+
+/* ------- 全局：统一 EP 的常用变量 -------
+ * 注意：不覆盖 --el-border-radius-base——按钮/输入框/卡片等保持 EP 默认 4px 圆角
+ * （产品要求：系统不走大圆角风格）。--radius-* token 仅供自定义组件使用。 */
+html:root {
+  --el-box-shadow-light:   none !important;
+  --el-box-shadow:         var(--shadow-md);
+  --el-box-shadow-dark:    var(--shadow-lg);
+}
+
+/* ------- 组件级：el-card 默认样式规范 ------- */
+html .el-card {
+  border: none !important;
+  box-shadow: var(--el-box-shadow-light);
+}
+
+html .el-tabs__nav-wrap::after {
+  height: 1px !important;
+}
+
+/* ------- 组件级：el-dialog 全局视觉规范（v2.27.1） -------
+ * 分层精致方向：容器去 padding 改为分区 padding，实现通栏 header 分隔线
+ * 与 footer 背景带；分层阴影；圆角保持 EP 默认；token 驱动，亮/暗色自适应。
+ */
+html .el-dialog {
+  --el-dialog-title-font-size: 16px;
+  /* EP 默认 .el-dialog { padding: var(--el-dialog-padding-primary) } 且 header/footer
+   * 的派生 padding 也用该变量；变量归零 + 容器 padding 归零，
+   * 分区留白全部由下方 header/body/footer 自己的 padding 控制。 */
+  --el-dialog-padding-primary: 0px;
+  padding: 0;
+  overflow: hidden; /* 裁切 footer 背景带的圆角 */
+  border: 1px solid var(--color-divider);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.06),
+    0 12px 32px rgba(15, 23, 42, 0.14),
+    0 32px 64px -24px rgba(15, 23, 42, 0.2);
+
+  .el-dialog__header {
+    padding: 15px 24px;
+    border-bottom: 1px solid var(--color-divider);
+  }
+  .el-dialog__header.show-close {
+    padding-right: 56px;
+  }
+  .el-dialog__title {
+    font-weight: var(--font-weight-semibold, 600);
+    letter-spacing: 0.2px;
+  }
+  .el-dialog__headerbtn {
+    top: 4px;
+    right: 8px;
+  }
+
+  .el-dialog__body {
+    padding: 24px;
+  }
+
+  .el-dialog__footer {
+    padding: 14px 24px;
+    background: var(--color-bg-page);
+    border-top: 1px solid var(--color-divider);
+  }
+
+  /* 宽度档位：替代散落的内联 width；小屏自动收窄 */
+  &.dialog-sm { --el-dialog-width: min(420px, calc(100vw - 32px)); }
+  &.dialog-md { --el-dialog-width: min(560px, calc(100vw - 32px)); }
+  &.dialog-lg { --el-dialog-width: min(680px, calc(100vw - 32px)); }
+  &.dialog-xl { --el-dialog-width: min(800px, calc(100vw - 32px)); }
+}
+
+/* 遮罩：略加深并带一点冷色，突出弹窗悬浮层次 */
+html .el-overlay {
+  background-color: rgba(15, 23, 42, 0.55);
+}
+html.dark .el-overlay {
+  background-color: rgba(0, 0, 0, 0.65);
+}
+
+/* ------- 组件级：列表/表单去组件气（与弹窗同一分层语言） ------- */
+
+/* 表格：表头淡灰背景带 + 半粗小字，行 hover 品牌浅色，仅保留水平细分隔线 */
+html .el-table {
+  --el-table-border-color: var(--color-divider);
+  --el-table-header-bg-color: var(--color-bg-page);
+  --el-table-header-text-color: var(--el-text-color-secondary);
+  --el-table-row-hover-bg-color: var(--el-color-primary-light-9);
+
+  th.el-table__cell {
+    font-size: 13px;
+    font-weight: var(--font-weight-semibold, 600);
+    letter-spacing: 0.3px;
+  }
+
+  .el-table__cell {
+    padding: 10px 0;
+  }
+}
+
+/* 分页：页码做圆角胶囊，当前页品牌浅底 */
+html .el-pagination {
+  .el-pager li,
+  .btn-prev,
+  .btn-next {
+    transition: background-color var(--motion-duration-fast) var(--motion-easing);
+  }
+
+  .el-pager li:hover {
+    background: var(--color-bg-page);
+  }
+
+  .el-pager li.is-active {
+    background: var(--el-color-primary-light-9);
+  }
+}
+
+/* 搜索区：条件项等距排布、去掉底部多余留白，label 弱化 */
+html .search-card .search-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+
+  .el-form-item {
+    margin: 0;
+  }
+}
+
+/* 表单：label 用次级色，与值/输入内容拉开层次 */
+html .el-form-item__label {
+  color: var(--el-text-color-secondary);
+}
+
+/* 操作列 text 按钮：hover 不出底色，保留文字变色反馈
+ *（:not(.is-disabled) 用于压过 EP 同结构选择器的优先级） */
+html .el-button.is-text:not(.is-disabled):hover {
+  background-color: transparent;
+}
+
+/* 表单内分组分隔线：文案降为 caption 级 */
+html .el-divider__text {
+  font-size: 12px;
+  color: var(--el-text-color-secondary);
+  letter-spacing: 0.5px;
+}
+
+/* MessageBox 与 dialog 视觉语言对齐 */
+html .el-message-box {
+  border: 1px solid var(--color-divider);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.06),
+    0 12px 32px rgba(15, 23, 42, 0.14);
+}
+html .el-message-box__title {
+  font-size: 15px;
+  font-weight: var(--font-weight-semibold, 600);
+}

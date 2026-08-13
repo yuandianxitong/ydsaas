@@ -1,0 +1,76 @@
+name: PHP Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: dev007_framework_saas_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -u root -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, pdo, pdo_mysql, redis, gd, zip, bcmath
+          coverage: none
+          tools: composer:v2
+
+      - name: Wait for MySQL
+        run: |
+          for i in {1..30}; do
+            if mysqladmin ping -h 127.0.0.1 -u root -proot --silent; then
+              echo "MySQL is up"
+              break
+            fi
+            echo "Waiting for MySQL... ($i/30)"
+            sleep 2
+          done
+
+      - name: Install PHP dependencies
+        working-directory: server
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Setup .env for tests
+        working-directory: server
+        run: |
+          cp .env.example .env
+          # Strip parens from comment lines (think\Env parser quirk)
+          sed -i '/[#].*[(]/d' .env
+          sed -i 's/^HOST = .*/HOST = 127.0.0.1/' .env
+          sed -i 's/^USER = .*/USER = root/' .env
+          sed -i 's/^PASS = .*/PASS = root/' .env
+          sed -i 's/^NAME = .*/NAME = dev007_framework_saas_test/' .env
+          echo "JWT_TENANT_SECRET = ci-tenant-secret-must-be-at-least-32-bytes-long" >> .env
+          echo "JWT_PLATFORM_SECRET = ci-platform-secret-must-be-at-least-32-bytes-long" >> .env
+
+      - name: Run migrations
+        working-directory: server
+        run: php think migrate:run
+
+      - name: Run full test suite
+        working-directory: server
+        run: ./vendor/bin/phpunit
+
+      - name: Run red-line tests explicitly (must pass)
+        working-directory: server
+        run: ./vendor/bin/phpunit --testsuite=RedLine

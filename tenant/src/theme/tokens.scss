@@ -1,0 +1,288 @@
+/* src/theme/tokens.css */
+/* 基础（默认主题：blue） */
+:root {
+  /* ===== 品牌/功能色（语义层） ===== */
+  --color-brand:          #2C73FF; /* 主色（原型） */
+  --color-accent:         #0aa0b7; /* 辅助/强调色（可选用作次要主色） */
+
+  --color-success:        #16A34A; /* 原型语义色 */
+  --color-warning:        #F59E0B;
+  --color-danger:         #E11D48;
+  --color-info:           #0EA5E9;
+
+  --color-primary-hover: var(--el-color-primary-light-3, #5B92FF);
+  --color-primary-active: var(--el-color-primary-dark-2, #1B4FE8);
+
+  /* ===== 中性色（灰阶 & 语义中性） ===== */
+  --gray-50:  #f8fafc;
+  --gray-100: #f1f5f9;
+  --gray-200: #e2e8f0;
+  --gray-300: #cbd5e1;
+  --gray-400: #94a3b8;
+  --gray-500: #64748b;
+  --gray-600: #475569;
+  --gray-700: #334155;
+  --gray-800: #1e293b;
+  --gray-900: #0f172a;
+
+  --color-bg:            #ffffff; /* 页面背景 */
+  --color-bg-page:       #f4f6fb;        /* Shop --page-bg：页面灰底 */
+  --color-surface:       #ffffff; /* 卡片/容器背景 */
+  --color-surface-sunken:#f8fafc;        /* Shop ink-50：表头/下沉井 */
+  --color-border:        #e2e8f0;        /* Shop ink-200 */
+  --color-border-strong: #cbd5e1;        /* Shop ink-300 */
+  --color-divider:       #f1f5f9;        /* Shop ink-100：卡片描边/分隔 */
+
+  --color-text-primary:   var(--ink);    /* #1e293b 原型墨色一阶 */
+  --color-text-secondary: var(--ink-2);  /* #475569 */
+  --color-text-tertiary:  var(--ink-3);  /* #64748b */
+  --color-text-disabled:  var(--ink-4);  /* #94a3b8 */
+
+  /* ===== 交互状态派生（可按需再细化） ===== */
+  --color-brand-hover:        #5B92FF;
+  --color-brand-active:       #1B4FE8;
+  --color-brand-ghost:        #EEF3FF;   /* 轻量背景 */
+  --color-sidebar-bg:         var(--color-brand);  /* 一级菜单背景 */
+  --color-sidebar-active:     #1B4FE8; /* 一级菜单选中 */
+  --color-focus-ring:         #5b9dff;
+  --opacity-disabled:         0.5;
+
+  /* ===== 字体系统 ===== */
+  --font-family-sans:        "Inter", "PingFang SC", "Microsoft YaHei", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Hiragino Sans GB", sans-serif;
+  --font-family-mono:        "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --font-size-display:       32px;
+  --font-size-title:         24px;
+  --font-size-subtitle:      18px;
+  --font-size-body:          13px;   /* Shop 基础字号 */
+  --font-size-dense:         12.5px; /* 表头 / 表单 label / 分页 */
+  --font-size-caption:       12px;
+  --font-size-small:         11px;
+
+  --line-height-tight:       1.2;
+  --line-height-default:     1.5;
+  --line-height-loose:       1.7;
+
+  --font-weight-regular:     400;
+  --font-weight-medium:      500;
+  --font-weight-semibold:    600;
+  --font-weight-bold:        700;
+
+  /* ===== 间距尺度（4px 基准） ===== */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* ===== 圆角 & 阴影 ===== */
+  /* 原型 sharp 圆角：xs2 / s4 / m6 / l8 */
+  --radius-sm: 2px;   /* badge / 微小 chip（原型 r-xs） */
+  --radius-md: 4px;   /* 按钮 / 输入框（原型 r-s） */
+  --radius-lg: 6px;   /* 卡片 / 弹窗（原型 r-m） */
+  --radius-xl: 8px;   /* 大卡片 / hero（原型 r-l） */
+
+  /* 阴影：Shop 分层轻阴影（slate 冷调） */
+  --shadow-hairline: 0 1px 2px rgba(15,23,42,.04);                            /* Shop xs：静止卡片 */
+  --shadow-sm: 0 2px 8px rgba(15,23,42,.04), 0 1px 2px rgba(15,23,42,.03);    /* 卡片 */
+  --shadow-md: 0 6px 24px rgba(15,23,42,.06), 0 2px 6px rgba(15,23,42,.04);   /* 浮层/下拉 */
+  --shadow-lg: 0 12px 40px rgba(15,23,42,.08);                                /* 模态/焦点卡 */
+
+  /* 焦点环（原型 --ring，租户蓝调） */
+  --ring: 0 0 0 3px rgba(44,115,255,.18);
+
+  /* ===== 动画 & 过渡 ===== */
+  --motion-duration-fast:   .15s;
+  --motion-duration-base:   .2s;
+  --motion-duration-slow:   .35s;
+  --motion-easing:          cubic-bezier(.2,.8,.2,1);
+
+  /* ===== 层级（z-index） ===== */
+  --z-dropdown:   1000;
+  --z-sticky:     1020;
+  --z-fixed:      1030;
+  --z-modal:      2000;
+  --z-popover:    2100;
+  --z-tooltip:    2200;
+
+  /* ===== 断点（与 Uno/样式系统对齐） ===== */
+  --bp-sm: 640px;
+  --bp-md: 768px;
+  --bp-lg: 1024px;
+  --bp-xl: 1280px;
+
+  /* ===== ink 灰阶（对齐 Shop slate：text=800/600/500/400） ===== */
+  --ink:   #1e293b;
+  --ink-2: #475569;
+  --ink-3: #64748b;
+  --ink-4: #94a3b8;
+
+  /* ===== 提供给 UnoCSS 的主色别名（方便 text-primary/bg-primary 等） ===== */
+  --color-primary: var(--color-brand);
+  --color-success-plain: var(--color-success);
+  --color-warning-plain: var(--color-warning);
+  --color-danger-plain:  var(--color-danger);
+  --color-info-plain:    var(--color-info);
+
+  /* ===== Element Plus 桥接（核心变量） ===== */
+  --el-color-primary: var(--color-brand);
+  --el-color-success: var(--color-success);
+  --el-color-warning: var(--color-warning);
+  --el-color-danger:  var(--color-danger);
+  --el-color-info:    var(--color-info);
+
+  /* 语义软填充（≈本色 10–12% alpha）——让 light-effect 的 tag/alert 跟随原型新色相 */
+  --el-color-success-light-9: rgba(22,163,74,.10);
+  --el-color-warning-light-9: rgba(245,158,11,.12);
+  --el-color-danger-light-9:  rgba(225,29,72,.10);
+  --el-color-info-light-9:    rgba(14,165,233,.10);
+
+  /* 主色的派生（可以由脚本运行时改写，也可先给合理默认） */
+  --el-color-primary-dark-2:  #1B4FE8;
+  --el-color-primary-light-3: #5B92FF;
+  --el-color-primary-light-5: #84ACFF;
+  --el-color-primary-light-7: #ADC7FF;
+  --el-color-primary-light-8: #C6D8FF;
+  --el-color-primary-light-9: #EEF3FF;
+
+  /* Element Plus 其他通用变量（按需增补） */
+  --el-bg-color:            var(--color-bg);
+  --el-bg-color-overlay:    #fff;
+  --el-text-color-primary:  var(--color-text-primary);
+  --el-text-color-regular:  var(--color-text-secondary);
+  --el-text-color-secondary:var(--color-text-tertiary);
+  --el-text-color-disabled: var(--color-text-disabled);
+  --el-border-color:        var(--color-border);
+  --el-border-radius-base:  var(--radius-md);
+  --el-box-shadow:          var(--shadow-md);
+  --el-transition-duration: var(--motion-duration-base);
+  --el-transition-function: var(--motion-easing);
+}
+
+/* Element Plus importStyle:"sass" 按组件懒注入的 :root 变量晚于本文件加载，
+ * 同优先级会反超下面这几个桥接变量；html:root (0,1,1) 比 :root (0,1,0) 高一级，
+ * 稳定压过 EP 自身声明，不依赖加载顺序（与 platform 端策略一致）。 */
+html:root {
+  --el-font-size-base: 14px;
+  --el-component-size-small: 28px;                       /* Shop small 控件高（EP 默认 24px） */
+  --el-border-color-hover: var(--color-border-strong);   /* 输入框 hover 边框加深（Shop ink-300） */
+}
+
+/* ========== 暗色模式 ========== */
+html.dark {
+  --color-bg: #0e0f11;
+  --color-bg-page: #141517;           /* 暗色模式内容区背景，略亮于页面底色 */
+  --color-surface: #1a1b1e;
+  --color-surface-sunken: #222326;
+  --color-border: #2e2f33;
+  --color-border-strong: #3a3b3f;
+  --color-divider: #252629;
+  --color-text-primary: #e2e8f0;    /* slate-200，原 #e5e7eb */
+  --color-text-secondary: #94a3b8;  /* slate-400，原 #9ca3af */
+  --color-text-tertiary: #64748b;   /* slate-500，原 #6b7280 */
+  --color-text-disabled: #475569;   /* slate-600，原 #4b5563 */
+  --color-brand-ghost: rgba(59,130,246,0.15);
+  --color-sidebar-bg: #1a1d2e;        /* 深色模式下一级菜单背景（品牌色调暗化） */
+  --color-sidebar-active: #252a40;    /* 深色模式下一级菜单选中 */
+
+  --gray-50:  #1a1b1e;
+  --gray-100: #222326;
+  --gray-200: #2e2f33;
+  --gray-300: #3a3b3f;
+  --gray-400: #4b4c50;
+  --gray-500: #6b6c70;
+  --gray-600: #8c8d91;
+  --gray-700: #b0b1b5;
+  --gray-800: #d0d1d5;
+  --gray-900: #e5e7eb;
+
+  --el-color-primary-light-3: #5B92FF;
+  --el-color-primary-light-9: rgba(44,115,255,0.16);
+  --ink:   #e2e8f0;
+  --ink-2: #94a3b8;
+  --ink-3: #64748b;
+  --ink-4: #475569;
+
+  --el-bg-color: var(--color-bg);
+  --el-bg-color-overlay: var(--color-surface);
+  --el-bg-color-page: var(--color-bg);
+  --el-text-color-primary: var(--color-text-primary);
+  --el-text-color-regular: var(--color-text-secondary);
+  --el-text-color-secondary: var(--color-text-tertiary);
+  --el-text-color-disabled: var(--color-text-disabled);
+  --el-border-color: var(--color-border);
+  --el-border-color-light: var(--color-divider);
+  --el-fill-color-blank: var(--color-surface);
+  --el-fill-color: #252629;
+  --el-fill-color-light: #1e1f22;
+  --el-fill-color-lighter: #1a1b1e;
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.2);
+  --shadow-md: 0 2px 8px rgba(0,0,0,.3);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,.4);
+  --el-box-shadow: var(--shadow-md);
+}
+
+/* 暗色主题变体 */
+html.dark[data-dark-theme="mint"]   { --color-bg: rgb(10,16,20);  --color-surface: rgb(18,24,28); --el-bg-color: var(--color-bg); --el-bg-color-overlay: var(--color-surface); }
+html.dark[data-dark-theme="navy"]   { --color-bg: rgb(14,18,30);  --color-surface: rgb(22,26,38); --el-bg-color: var(--color-bg); --el-bg-color-overlay: var(--color-surface); }
+html.dark[data-dark-theme="mirage"] { --color-bg: rgb(5,10,22);   --color-surface: rgb(13,18,30); --el-bg-color: var(--color-bg); --el-bg-color-overlay: var(--color-surface); }
+html.dark[data-dark-theme="cinder"] { --color-bg: rgb(14,15,17);  --color-surface: rgb(22,23,25); --el-bg-color: var(--color-bg); --el-bg-color-overlay: var(--color-surface); }
+html.dark[data-dark-theme="black"]  { --color-bg: rgb(0,0,0);     --color-surface: rgb(10,10,10); --el-bg-color: var(--color-bg); --el-bg-color-overlay: var(--color-surface); }
+
+/* ========== 其他预置主题：通过 data-theme 切换 ========== */
+/* 主题：cyan */
+:root[data-theme="cyan"] {
+  --color-brand: #0aa0b7;
+  --color-accent: #0b51b7; /* 可对调 */
+  --el-color-primary: var(--color-brand);
+
+  --el-color-primary-dark-2:  #088092;
+  --el-color-primary-light-3: #54bccd;
+  --el-color-primary-light-5: #85d0db;
+  --el-color-primary-light-7: #b6e3e9;
+  --el-color-primary-light-8: #ceecf1;
+  --el-color-primary-light-9: #e7f6f8;
+}
+
+/* 主题：green */
+:root[data-theme="green"] {
+  --color-brand: #2da44e;
+  --el-color-primary: var(--color-brand);
+
+  --el-color-primary-dark-2:  #24833e;
+  --el-color-primary-light-3: #6cbf83;
+  --el-color-primary-light-5: #96d2a7;
+  --el-color-primary-light-7: #c0e4ca;
+  --el-color-primary-light-8: #d5eddc;
+  --el-color-primary-light-9: #eaf6ed;
+}
+
+/* 主题：orange */
+:root[data-theme="orange"] {
+  --color-brand: #ff6a00;
+  --el-color-primary: var(--color-brand);
+
+  --el-color-primary-dark-2:  #cc5500;
+  --el-color-primary-light-3: #ff974d;
+  --el-color-primary-light-5: #ffb580;
+  --el-color-primary-light-7: #ffd2b3;
+  --el-color-primary-light-8: #ffe0cc;
+  --el-color-primary-light-9: #fff0e6;
+}
+
+/* 主题：purple */
+:root[data-theme="purple"] {
+  --color-brand: #6f42c1;
+  --el-color-primary: var(--color-brand);
+
+  --el-color-primary-dark-2:  #59359a;
+  --el-color-primary-light-3: #9a7bd4;
+  --el-color-primary-light-5: #b7a0e0;
+  --el-color-primary-light-7: #d4c6ec;
+  --el-color-primary-light-8: #e2d9f3;
+  --el-color-primary-light-9: #f1ecf9;
+}

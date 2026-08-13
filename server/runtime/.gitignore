@@ -1,0 +1,8 @@
+*
+!.gitignore
+!.gitkeep
+!cache/
+!log/
+!temp/
+!session/
+!mobile-builds/

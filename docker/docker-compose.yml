@@ -1,0 +1,104 @@
+services:
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: yd-admin-nginx
+    ports:
+      - "${NGINX_PORT:-80}:80"
+    environment:
+      # SAAS_ROOT_DOMAIN 由 entrypoint.sh 在容器启动时注入 default.conf
+      - SAAS_ROOT_DOMAIN=${SAAS_ROOT_DOMAIN:-example.com}
+    volumes:
+      # 配置文件挂成 .template 后由 entrypoint.sh 用 sed 替换占位符再加载
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf.template:ro
+      - ./nginx/includes:/etc/nginx/conf.d/includes:ro
+      - ./nginx/entrypoint.sh:/docker-entrypoint-saas.sh:ro
+      # 前端产物 bind mount（用户在宿主机 pnpm build 后挂进来）
+      - ../platform/dist:/usr/share/nginx/html/platform:ro
+      - ../tenant/dist:/usr/share/nginx/html/tenant:ro
+      - ../pc/.output/public:/usr/share/nginx/html/pc:ro
+      # 后端静态资源（所有 vhost 的 /storage + /uploads 都 alias 到这里）
+      - ../server/public:/var/www/html/public
+      - ../server/public/storage:/var/www/html/public/storage
+      - ../server/public/uploads:/var/www/html/public/uploads
+    entrypoint: ["/bin/sh", "/docker-entrypoint-saas.sh"]
+    depends_on:
+      - php
+    networks:
+      - yd-admin-network
+    restart: unless-stopped
+
+  php:
+    build:
+      context: ./php
+      dockerfile: Dockerfile
+    container_name: yd-admin-php
+    volumes:
+      - ../server:/var/www/html
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - TZ=Asia/Shanghai
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:80/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    networks:
+      - yd-admin-network
+    restart: unless-stopped
+
+  mysql:
+    image: mysql:8.0
+    container_name: yd-admin-mysql
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-ydadmin123}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-yd_admin}
+      MYSQL_USER: ${MYSQL_USER:-ydadmin}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-ydadmin123}
+      TZ: Asia/Shanghai
+    volumes:
+      - yd-admin-mysql-data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_0900_ai_ci
+      - --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - yd-admin-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: yd-admin-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-}
+    volumes:
+      - yd-admin-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - yd-admin-network
+    restart: unless-stopped
+
+volumes:
+  yd-admin-mysql-data:
+  yd-admin-redis-data:
+
+networks:
+  yd-admin-network:
+    driver: bridge

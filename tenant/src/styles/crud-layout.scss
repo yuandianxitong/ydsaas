@@ -1,0 +1,77 @@
+/* ============================================================
+ * 通用 CRUD 列表页布局工具类
+ *
+ * 所有列表页几乎都有相同的 "搜索卡片 + 表格卡片 + 分页" 结构，
+ * 这里把共享的样式提取为全局工具类，避免在每个页面的 scoped SCSS 里复制粘贴。
+ *
+ * 使用约定：外层容器可保留业务命名（如 .admin-container），但不再重复
+ * 定义 .table-header / .table-title / .table-actions / .pagination 这些共享 class。
+ * ============================================================ */
+
+/* 搜索卡片：放在顶部的搜索表单 */
+.search-card {
+    margin-bottom: 16px;
+
+    .search-form {
+        margin: 0;
+    }
+}
+
+/* 表格卡片头部：左边 title + 右边操作按钮组 */
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.table-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--el-text-color-primary);
+
+    // Shop 招牌：标题左侧 3px 主色圆角竖条
+    &::before {
+        content: '';
+        width: 3px;
+        height: 14px;
+        border-radius: 2px;
+        background: var(--color-brand);
+        flex: none;
+    }
+}
+
+/* 卡片/面板标题：与 .table-title 同规范（供非表格场景使用） */
+.card-title {
+    @extend .table-title;
+}
+
+.table-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* 表格下方分页区域，右对齐 */
+.pagination {
+    margin-top: 16px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* 兼容历史命名：pagination-wrap */
+.pagination-wrap {
+    @extend .pagination;
+}
+
+/* 表单提示：统一写法（对齐 Shop admin）。放在控件同一个 el-form-item 内，
+ * width:100% 使其在 flex content 中折到控件下一行独立展示。 */
+.form-tip {
+    display: block;
+    width: 100%;
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--el-text-color-secondary);
+}

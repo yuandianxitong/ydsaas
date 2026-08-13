@@ -1,0 +1,1 @@
+import{d as a,e as s,f as e,w as t,aw as o,C as d,p,_ as r}from"./index-CPmTDMOp.js";const f=r(a({__name:"d-page",props:{safeArea:{type:Boolean,default:!0}},setup:a=>(a,r)=>{const f=p;return s(),e(f,{class:d(["d-page",{"safe-area-bottom":a.safeArea}])},{default:t(()=>[o(a.$slots,"default",{},void 0,!0)]),_:3},8,["class"])}}),[["__scopeId","data-v-375a4554"]]);export{f as _};

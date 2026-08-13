@@ -1,0 +1,19 @@
+*.log
+.env
+composer.phar
+.DS_Store
+Thumbs.db
+/.idea
+/.vscode
+/vendor
+/.settings
+/.buildpath
+/.project
+/.phpunit.cache
+.phpunit.result.cache
+
+# 插件运行时目录：plugins/ 解压后的源码不入库（作者自研付费插件 + 用户上传插件）。
+# 插件/皮肤 zip 已迁到 runtime/plugin-packages 与 runtime/skin-packages（由 runtime/.gitignore 覆盖）。
+/plugins/*
+!/plugins/.gitkeep
+/.php-cs-fixer.cache

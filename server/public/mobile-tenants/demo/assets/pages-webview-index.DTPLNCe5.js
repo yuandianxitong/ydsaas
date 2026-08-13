@@ -1,0 +1,1 @@
+import{d as e,r as s,y as a,e as n,f as r,k as t,T as u}from"./index-CPmTDMOp.js";const l=e({__name:"index",setup(e){const l=s("");return a(e=>{l.value=(null==e?void 0:e.url)?decodeURIComponent(String(e.url)):""}),(e,s)=>{const a=u;return l.value?(n(),r(a,{key:0,src:l.value},null,8,["src"])):t("",!0)}}});export{l as default};

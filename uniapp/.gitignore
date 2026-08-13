@@ -1,0 +1,49 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+.DS_Store
+dist
+*.local
+
+# Editor directories and files
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Plugin mobile build merge (Phase 2 B)
+# Note: 用 src/modules/* （无尾斜杠）才能同时匹配真实目录和插件 symlink；
+# 白名单也要双形式（path + path/**）才能放过框架自带 10 个内置 module。
+src/pages.json
+src/modules/*
+!src/modules/login
+!src/modules/login/**
+!src/modules/user
+!src/modules/user/**
+!src/modules/webview
+!src/modules/webview/**
+!src/modules/feedback
+!src/modules/feedback/**
+!src/modules/message
+!src/modules/message/**
+!src/modules/payment
+!src/modules/payment/**
+!src/modules/agreement
+!src/modules/agreement/**
+!src/modules/article
+!src/modules/article/**
+!src/modules/about
+!src/modules/about/**
+# DIY 渲染器协议 v1：插件 DIY 渲染器主包软链 + 生成的静态注册表（sync-plugin-uniapp.mjs 恒重建）
+src/components/diy/plugins/
+src/generated/diy-plugin-renderers.ts
+src/components/diy/plugin-renderer-host.generated.vue

@@ -1,0 +1,81 @@
+{
+    "name": "yd-admin/framework",
+    "description": "元点Admin - 开源通用后台管理系统框架",
+    "type": "project",
+    "keywords": [
+        "admin",
+        "framework",
+        "thinkphp",
+        "vue3",
+        "yd-admin"
+    ],
+    "homepage": "https://www.dev007.cn/",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "元点Admin Team",
+            "homepage": "https://www.dev007.cn"
+        }
+    ],
+    "require": {
+        "php": ">=8.4.0",
+        "topthink/framework": "8.1.2",
+        "topthink/think-orm": "4.0.40",
+        "topthink/think-filesystem": "^2.0|^3.0",
+        "league/mime-type-detection": "^1.16",
+        "topthink/think-multi-app": "^1.1",
+        "firebase/php-jwt": "^7.0",
+        "wechatpay/wechatpay": "^1.4",
+        "alipaysdk/easysdk": "^2.2",
+        "qiniu/php-sdk": "^7.14",
+        "alibabacloud/oss-v2": "^0.4.0",
+        "qcloud/cos-sdk-v5": "^2.6",
+        "tencentcloud/sms": "^3.0",
+        "alibabacloud/dysmsapi-20170525": "^4.5",
+        "w7corp/easywechat": "^6.17",
+        "zircote/swagger-php": "^4.0",
+        "topthink/think-queue": "^3.0",
+        "symfony/mailer": "^8.0",
+        "dragonmantank/cron-expression": "^3.6"
+    },
+    "require-dev": {
+        "topthink/think-dumper": "^1.0",
+        "topthink/think-trace": "^2.0@dev",
+        "phpunit/phpunit": "^10.0|^11.0",
+        "friendsofphp/php-cs-fixer": "^3.0",
+        "phpstan/phpstan": "^2.0"
+    },
+    "autoload": {
+        "classmap": [
+            "extend/think/model/"
+        ],
+        "psr-4": {
+            "app\\": "app",
+            "core\\": "core/"
+        },
+        "psr-0": {
+            "": "extend/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "tests\\": "tests/",
+            "Tests\\": "tests/",
+            "Tests\\Unit\\Cms\\": "plugins/cms/tests/Unit/"
+        }
+    },
+    "config": {
+        "preferred-install": "dist"
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "@php think service:discover",
+            "@php think vendor:publish"
+        ],
+        "lint": "php-cs-fixer fix --dry-run --diff",
+        "lint:fix": "php-cs-fixer fix",
+        "analyse": "phpstan analyse",
+        "test": "phpunit --colors=always",
+        "test:coverage": "phpunit --colors=always --coverage-text"
+    }
+}

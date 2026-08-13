@@ -1,0 +1,1 @@
+import{ab as t}from"./index-CPmTDMOp.js";const e={getList:e=>t.get("/api/cms/article/list",e),getDetail:e=>t.get(`/api/cms/article/detail/${e}`),getCategoryList:()=>t.get("/api/cms/article-category/list")};export{e as a};

@@ -1,0 +1,467 @@
+/* ===== 全局：统一 EP 常用变量 ===== */
+:root {
+  --el-border-radius-base: var(--radius-md);
+  --el-box-shadow-light:   none !important;
+  --el-box-shadow:         var(--shadow-md);
+  --el-box-shadow-dark:    var(--shadow-lg);
+}
+
+/* ===== Button =====
+ * html 前缀提升特异性：EP importStyle:"sass" 懒注入的 .el-button 样式
+ * 加载时机晚于本文件，同优先级会反超；html .el-button (0,1,1) 稳定压过
+ * EP 的 .el-button (0,1,0)，不依赖加载顺序（与 platform 端策略一致）。 */
+html .el-button {
+  --el-button-border-radius: var(--radius-md);
+  font-weight: var(--font-weight-medium);
+  font-size: 13px;
+  padding: 7px 14px;
+  transition: all var(--motion-duration-base) var(--motion-easing);
+
+  &.el-button--small {
+    font-size: 12px;
+    padding: 4px 10px;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  &--primary {
+    --el-button-bg-color: var(--el-color-primary);
+    --el-button-border-color: var(--el-color-primary);
+
+    &:hover,
+    &:focus {
+      --el-button-hover-bg-color: var(--el-color-primary-light-3);
+      --el-button-hover-border-color: var(--el-color-primary-light-3);
+    }
+
+    &:active {
+      --el-button-active-bg-color: var(--el-color-primary-dark-2);
+      --el-button-active-border-color: var(--el-color-primary-dark-2);
+    }
+  }
+}
+
+/* ===== Input / Select / Textarea =====
+ * 对齐 Shop：13px / 32px 高 / 4px 圆角 / 0 10px 内距 / inset 1px 边框（focus 变主色）。
+ * html 前缀：EP 懒注入在组件级声明同名变量/属性且晚于本文件，需 (0,1,1)+ 稳定压过。 */
+html .el-input,
+html .el-textarea {
+  --el-input-border-radius: var(--radius-md);
+  --el-input-border-color: var(--color-border);
+  --el-input-hover-border-color: var(--color-border-strong);
+  --el-input-focus-border-color: var(--color-brand);
+  --el-input-text-color: var(--color-text-primary);
+  --el-input-placeholder-color: var(--color-text-disabled);
+  font-size: 13px;
+}
+
+html .el-input .el-input__wrapper {
+  border-radius: var(--radius-md);
+  padding: 0 10px;
+  background-color: var(--el-fill-color-blank, var(--color-bg));
+  transition: box-shadow var(--motion-duration-fast);
+}
+
+html .el-textarea .el-textarea__inner {
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  padding: 8px 10px;
+
+  &:focus {
+    box-shadow: 0 0 0 1px var(--color-brand) inset;
+  }
+}
+
+html .el-select .el-select__wrapper {
+  min-height: 32px;
+  border-radius: var(--radius-md);
+  padding: 0 10px;
+  font-size: 13px;
+  box-shadow: 0 0 0 1px var(--color-border) inset;
+  transition: box-shadow var(--motion-duration-fast);
+
+  &:hover {
+    box-shadow: 0 0 0 1px var(--color-border-strong) inset;
+  }
+
+  &.is-focused {
+    box-shadow: 0 0 0 1px var(--color-brand) inset;
+  }
+}
+
+/* ===== Form =====
+ * 基准 = Shop 实际渲染（其 12.5px 设计稿覆写被 EP 懒注入反超未生效）：
+ * label 14px / ink-700 / 常规字重；错误文字 12px（EP 默认）。
+ * font-size 直写而非走 --el-form-label-font-size 桥接：EP 懒注入在
+ * .el-form-item--default 同元素上以硬编码 --font-size:14px 重声明该变量。 */
+html .el-form-item {
+
+  &.is-error .el-input__wrapper {
+    box-shadow: 0 0 0 1px var(--el-color-danger) inset !important;
+  }
+}
+
+/* ===== Card ===== */
+.el-card {
+  --el-card-border-radius: var(--radius-xl);
+  // Shop 质感：1px ink-100 浅描边 + 分层轻阴影，白卡浮于灰底
+  // !important：部分页面/EP 变体会以更高优先级重新加描边，必须强制统一
+  border: 1px solid var(--color-divider) !important;
+  border-radius: var(--el-card-border-radius);
+  box-shadow: var(--shadow-sm);
+  background-color: var(--color-surface);
+
+  .el-card__header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--color-divider);
+  }
+
+  .el-card__body {
+    padding: 16px 20px 20px;
+  }
+}
+
+/* ===== Table =====
+ * html 前缀提升特异性：EP importStyle:"sass" 懒注入的 .el-table 样式
+ * 加载时机晚于本文件，同优先级会反超；html .el-table (0,1,1) 稳定压过
+ * EP 的 .el-table (0,1,0)，不依赖加载顺序（与 platform 端策略一致）。 */
+html .el-table {
+  --el-table-border-color: var(--color-divider);
+  --el-table-header-bg-color: var(--color-surface-sunken);
+  --el-table-row-hover-bg-color: var(--color-surface-sunken);
+  font-size: var(--font-size-body);
+
+  th.el-table__cell {
+    // Shop 表头：下沉井底色 + 12.5px + 中等字重
+    background-color: var(--color-surface-sunken);
+    font-weight: var(--font-weight-medium);
+    font-size: var(--font-size-dense);
+    color: var(--color-text-tertiary);
+    letter-spacing: 0.02em;
+    padding: 10px 0;
+  }
+
+  // 表头不换行：EP 的 .el-table .cell { white-space: normal } 作用在子元素 .cell 上，
+  // 与选择器加载顺序无关地反超 th.el-table__cell 上的声明，须落在同一层级上覆盖。
+  th.el-table__cell .cell {
+    white-space: nowrap;
+  }
+
+  td.el-table__cell {
+    padding: 12px 0;
+  }
+
+  // Shop 单元格水平间距 16px（EP 默认 .cell 左右 12px）
+  .cell {
+    padding: 0 16px;
+  }
+
+  // Shop 选中行：主色 5% 底 + 首列 2px 主色竖条
+  .el-table__body tr.current-row > td.el-table__cell {
+    background-color: color-mix(in srgb, var(--color-brand) 5%, transparent);
+  }
+
+  .el-table__body tr.current-row > td.el-table__cell:first-child {
+    box-shadow: inset 2px 0 0 var(--color-brand);
+  }
+
+  .el-table__body tr:last-child td {
+    border-bottom: none;
+  }
+}
+
+/* ===== Dialog =====
+ * html 前缀提升特异性：EP importStyle:"sass" 懒注入的 .el-dialog 样式
+ * 加载时机晚于本文件，同优先级会反超；html .el-dialog (0,1,1) 稳定压过
+ * EP 的 .el-dialog (0,1,0)，不依赖加载顺序（与 platform 端策略一致）。 */
+html .el-dialog {
+  --el-dialog-border-radius: var(--radius-lg);
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.25);
+  padding: 0 !important;
+  overflow: hidden;
+
+  // 弹窗屏幕比例与内部滚动契约（fullscreen 原生行为豁免）：
+  // 整体高度封顶 86vh（与统一顶距 7vh 联动：7 + 86 + 7 = 100），header/footer 固定，
+  // 超高时仅 body 内部滚动——取代 EP 默认的 .el-overlay-dialog 整页滚动（footer 会滚出视口）。
+  // max-width 兜底未档位化的弹窗（仍传 px 宽度的插件/存量），小屏不溢出。
+  &:not(.is-fullscreen) {
+    // 垂直居中：配合下方 .el-overlay-dialog 的 flex 容器，auto 边距是"安全居中"——
+    // 空间充裕时上下均分（矮弹窗居中），内容顶到 86vh 封顶后 auto 解析为 0 不裁头。
+    // 注意 top prop（内联 --el-dialog-margin-top）在此策略下不再生效，居中即最终定位。
+    margin: auto;
+    max-height: 86vh;
+    max-width: 92vw;
+    display: flex;
+    flex-direction: column;
+
+    .el-dialog__header,
+    .el-dialog__footer {
+      flex: none;
+    }
+
+    .el-dialog__body {
+      flex: 1;
+      min-height: 0; // flex 子项默认 min-height:auto 会撑破容器，必须归零才能触发滚动
+      overflow-y: auto;
+    }
+  }
+
+  // 逃生舱：恢复 EP 默认整体滚动行为（特殊布局弹窗按需豁免）
+  &.dialog-scroll-free {
+    // 复原 EP 默认边距（覆盖 :not 块的 margin:auto 居中）；消费变量保留 top prop 内联覆盖能力
+    --el-dialog-margin-top: 15vh;
+    margin: var(--el-dialog-margin-top) auto 50px;
+    max-height: none;
+    max-width: none;
+    display: block;
+
+    .el-dialog__body {
+      overflow-y: visible;
+    }
+  }
+
+  .el-dialog__header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--color-divider);
+    margin-right: 0;
+  }
+
+  // 对齐 Shop：title 15px / 600 / ink-900（比正文深一档强调）
+  .el-dialog__title {
+    font-weight: var(--font-weight-semibold);
+    font-size: 15px;
+    color: var(--gray-900);
+    line-height: var(--line-height-tight);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+
+    // Shop 招牌：标题左侧 3px 主色圆角竖条
+    &::before {
+      content: '';
+      width: 3px;
+      height: 14px;
+      border-radius: 2px;
+      background: var(--color-brand);
+      flex: none;
+    }
+  }
+
+  .el-dialog__body {
+    padding: var(--space-5);
+  }
+
+  .el-dialog__footer {
+    padding: 14px 20px;
+    border-top: 1px solid var(--color-divider);
+    background-color: var(--color-surface-sunken);
+  }
+}
+
+/* 弹窗宽度档位（屏幕比例 + 上下限钳制）：模板端加 class 且不传 width prop
+ * （EP 的 width prop 是内联样式，会压过 CSS 变量——档位化的弹窗必须移除 width）。
+ * sm 确认/小表单 · md 常规表单 · lg 复杂表单 · xl 富媒体/双栏 */
+html .el-dialog.dlg-sm {
+  --el-dialog-width: clamp(400px, 32vw, 480px);
+}
+
+html .el-dialog.dlg-md {
+  --el-dialog-width: clamp(560px, 46vw, 720px);
+}
+
+html .el-dialog.dlg-lg {
+  --el-dialog-width: clamp(760px, 58vw, 920px);
+}
+
+html .el-dialog.dlg-xl {
+  --el-dialog-width: clamp(880px, 72vw, 1200px);
+}
+
+/* 弹窗垂直居中容器：flex + 子项 margin:auto（安全居中）。
+ * align-items 用 flex-start 而非 center：防止默认 stretch 拉伸弹窗高度，
+ * 且 dialog-scroll-free（超高整体滚动）场景下从顶部排布、遮罩层滚动可达全部内容。 */
+html .el-overlay-dialog {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.el-overlay {
+  background-color: rgba(15, 23, 42, 0.45);
+}
+
+/* ===== Drawer ===== */
+.el-drawer {
+  --el-drawer-padding-primary: var(--space-5);
+
+  .el-drawer__header {
+    border-bottom: 1px solid var(--color-divider);
+    margin-bottom: 0;
+    padding-bottom: var(--space-4);
+  }
+}
+
+/* ===== Dropdown ===== */
+.el-dropdown-menu {
+  --el-dropdown-menu-box-shadow: var(--shadow-lg);
+  border-radius: var(--radius-md) !important;
+  padding: 4px !important;
+
+  .el-dropdown-menu__item {
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    transition: background var(--motion-duration-fast);
+
+    &:hover {
+      background-color: var(--el-fill-color-light);
+      color: var(--el-color-primary);
+    }
+  }
+}
+
+/* ===== Menu (vertical sidebar) ===== */
+.el-menu {
+  --el-menu-border-color: transparent;
+
+  .el-menu-item,
+  .el-sub-menu__title {
+    border-radius: 0;
+    margin: 0;
+    transition: background var(--motion-duration-fast), color var(--motion-duration-fast);
+
+    &:hover {
+      background-color: var(--el-fill-color-light);
+    }
+  }
+
+  .el-menu-item.is-active {
+    background-color: var(--el-color-primary-light-9);
+    color: var(--el-color-primary);
+    font-weight: var(--font-weight-medium);
+  }
+}
+
+/* ===== Tabs ===== */
+.el-tabs__nav-wrap::after {
+  height: 1px !important;
+}
+
+.el-tabs__item {
+  transition: color var(--motion-duration-fast);
+}
+
+/* ===== Pagination =====
+ * html 前缀提升特异性：EP importStyle:"sass" 懒注入的 .el-pagination 样式
+ * 加载时机晚于本文件，同优先级会反超；html .el-pagination (0,1,1) 稳定压过
+ * EP 的 .el-pagination (0,1,0)，不依赖加载顺序（与 platform 端策略一致）。 */
+html .el-pagination {
+  font-size: var(--font-size-dense);
+
+  .el-pager li {
+    border-radius: var(--radius-sm);
+    transition: all var(--motion-duration-fast);
+
+    &.is-active {
+      font-weight: var(--font-weight-semibold);
+    }
+  }
+
+  .btn-prev,
+  .btn-next {
+    border-radius: var(--radius-sm);
+  }
+}
+
+/* ===== Tag ===== */
+.el-tag {
+  --el-tag-border-radius: var(--radius-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+/* ===== Message / Notification ===== */
+.el-message {
+  --el-message-border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+}
+
+.el-notification {
+  --el-notification-border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ===== Popover / Tooltip ===== */
+.el-popover.el-popper {
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+}
+
+.el-tooltip__popper {
+  border-radius: var(--radius-sm) !important;
+}
+
+/* ===== MessageBox (Confirm/Alert/Prompt) ===== */
+.el-message-box {
+  // 使用 Element Plus 默认 4px（之前覆盖成 16px 太圆，跟租户端整体观感不协调）
+
+  .el-message-box__header {
+    padding-bottom: var(--space-2);
+  }
+}
+
+/* ===== Loading ===== */
+.el-loading-mask {
+  background-color: rgba(255, 255, 255, 0.7);
+}
+
+html.dark .el-loading-mask {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* ===== Empty ===== */
+.el-empty__description p {
+  color: var(--color-text-tertiary);
+}
+
+/* ===== Scrollbar ===== */
+.el-scrollbar__thumb {
+  background-color: var(--gray-400);
+  border-radius: 4px;
+
+  &:hover {
+    background-color: var(--gray-500);
+  }
+}
+
+/* ===== Breadcrumb ===== */
+.el-breadcrumb__item .el-breadcrumb__inner {
+  transition: color var(--motion-duration-fast);
+}
+
+/* ===== Switch =====
+ * 对齐 Shop：34×18 轨道 / 10px 圆角 / 14px 圆点 / on 主色 off 边框灰。
+ * 容器不锁宽（Shop 锁了 34px，但会挤压 inline 文案，这里只锁 core）。 */
+html .el-switch {
+  --el-switch-on-color: var(--color-brand);
+  --el-switch-off-color: var(--color-border);
+  height: 18px;
+
+  .el-switch__core {
+    border-radius: 10px;
+    height: 18px;
+    width: 34px;
+    min-width: 34px;
+
+    .el-switch__action {
+      width: 14px;
+      height: 14px;
+    }
+  }
+}
+
+/* ===== Badge ===== */
+.el-badge__content {
+  border: none;
+}
