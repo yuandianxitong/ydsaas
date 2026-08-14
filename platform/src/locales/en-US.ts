@@ -74,9 +74,9 @@ const main = {
         noAccount: "Don't have an account?",
         quickFill: 'Quick Fill',
         reg: 'Register',
-        title: 'Welcome to YuanDian Admin',
+        title: 'Welcome to YuanDian SaaS',
         subtitle:
-            'A modern, efficient, and ready-to-use admin solution to rapidly build your business system',
+            'A ready-to-use multi-tenant SaaS framework with subdomain isolation, an app marketplace, and subscription billing',
         welcome: 'Welcome',
         enterCredentials: 'Enter your credentials',
         feature1: 'Vue 3 + TypeScript modern stack',

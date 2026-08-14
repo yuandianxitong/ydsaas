@@ -101,7 +101,7 @@ const main = {
         quickFill: '快速填写',
         reg: '注 册',
         title: '欢迎使用 元点Saas 管理系统',
-        subtitle: '一个现代、高效、开箱即用的通用后台管理解决方案，助力企业快速搭建专属业务系统',
+        subtitle: '开箱即用的多租户 SaaS 应用框架，支持子域名隔离、应用市场与订阅计费，助力企业快速交付行业 SaaS',
         welcome: '欢迎登录',
         enterCredentials: '请输入您的账号信息',
         feature1: 'Vue 3 + TypeScript 现代技术栈',

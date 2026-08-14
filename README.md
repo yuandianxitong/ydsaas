@@ -2,14 +2,14 @@
   <img src="https://www.dev007.cn/oss/logo.png" alt="ydsaas" width="120">
 </p>
 
-<h1 align="center">YdAdmin SaaS — 多租户 SaaS 框架</h1>
+<h1 align="center">元点SaaS — 多租户SaaS应用框架</h1>
 
 <p align="center">
   开箱即用的多租户 SaaS 商业闭环：子域名隔离 / 插件应用 / 订阅计费 / 支付集成 / 配额管理 / 功能开关 / 红线测试
 </p>
 
 <p align="center">
-  <a href="https://docs.dev007.cn/saas/">在线文档</a> · <a href="DEPLOYMENT.md">部署指南</a> · <a href="ARCHITECTURE.md">架构设计</a> · <a href="CHANGELOG.md">更新日志</a> · <a href="CONTRIBUTING.md">贡献指南</a>
+  <a href="http://admin.saas.dev007.cn">在线演示</a> · <a href="https://docs.dev007.cn/saas/">在线文档</a> · <a href="DEPLOYMENT.md">部署指南</a> · <a href="ARCHITECTURE.md">架构设计</a> · <a href="CHANGELOG.md">更新日志</a> · <a href="CONTRIBUTING.md">贡献指南</a>
 </p>
 
 <p align="center">
@@ -26,7 +26,7 @@
 
 ## 系统简介
 
-**YdAdmin SaaS** 是一套基于 ThinkPHP 8 + Vue 3 + Element Plus 的开源多租户 SaaS 应用框架，提供完整的**多租户商业闭环**：
+元点SaaS 是一款开箱即用的多租户 SaaS 应用框架，采用主流的前后端分离架构，后端基于 ThinkPHP 8 提供 RESTful API，前端使用 Vue 3 + Element Plus 构建平台端与租户端管理界面，支持子域名隔离、应用插件、订阅计费与配额管理。提供完整的**多租户商业闭环**：
 
 - 物理子域名多租户隔离（`tenant1.example.com` / `tenant2.example.com`）
 - 插件应用体系（一级应用 / 能力插件 / 平台上架 / 套餐授权 / 租户启用）
@@ -39,6 +39,13 @@
 基于 [Apache-2.0](LICENSE) 协议开源，个人和企业均可免费商用。再分发须保留 `LICENSE` 与 [NOTICE](NOTICE) 版权声明。「元点SaaS」商标不随协议授权；应用与主题请在 [官方市场](https://www.dev007.cn/market) 购买。
 
 > 📖 在线文档：[https://docs.dev007.cn/saas/](https://docs.dev007.cn/saas/)
+
+## 演示体验
+
+| 端 | 地址 | 账号 |
+|---|---|---|
+| 平台端 | [http://admin.saas.dev007.cn](http://admin.saas.dev007.cn) | admin / admin888 |
+| 租户端 | [http://demo.saas.dev007.cn/tenant/](http://demo.saas.dev007.cn/tenant/) | demoadmin / admin888 |
 
 ## 快速开始
 
