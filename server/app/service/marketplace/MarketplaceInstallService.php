@@ -59,6 +59,9 @@ class MarketplaceInstallService extends Service
             $this->compatibilityChecker->ensureCompatible($cache, (string) config('version.version'));
 
             $appCode = (string) $cache['app_code'];
+            if (($cache['runtime'] ?? '') === 'shop') {
+                throw new BusinessException('该应用是 Shop 商城组件，无法安装到 SaaS 平台', 422);
+            }
             $version = $versionId ?: (string) $cache['latest_version'];
             $token   = $this->registration->decryptToken($conn);
 

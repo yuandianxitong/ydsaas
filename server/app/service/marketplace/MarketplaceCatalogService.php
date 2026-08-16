@@ -36,6 +36,9 @@ class MarketplaceCatalogService extends Service
         $keepCodes = [];
         $now       = date('Y-m-d H:i:s');
         foreach ($list as $ent) {
+            if (($ent['runtime'] ?? 'saas') === 'shop') {
+                continue;
+            }
             $keepCodes[] = (string) $ent['entitlement_code'];
             $this->cacheRepo->upsert((int) $connection['id'], (string) $ent['entitlement_code'], [
                 'remote_app_id'     => (string) ($ent['remote_app_id']     ?? $ent['app_id'] ?? ''),
@@ -113,6 +116,9 @@ class MarketplaceCatalogService extends Service
         $usedEntKeys = [];
 
         foreach ($public as $app) {
+            if (($app['runtime'] ?? 'saas') === 'shop') {
+                continue;
+            }
             $remoteId = (string) ($app['id'] ?? $app['code'] ?? '');
             $appCode  = (string) ($app['code'] ?? '');
             $ent      = $entByRemote[$remoteId] ?? ($appCode !== '' ? ($entByCode[$appCode] ?? null) : null);

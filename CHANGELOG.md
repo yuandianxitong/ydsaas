@@ -6,6 +6,9 @@ YdAdmin SaaS 的版本历史。
 
 ## [Unreleased]
 
+### Changed
+- 应用市场公开目录与权益同步强制 `runtime=saas`，拒绝安装 Shop 商城组件
+
 ### Added
 - 平台租户管理：新建支持开通方式（试用 / 线下正式 / 暂不订阅）；线下正式落 `payment_channel=offline` 已支付订单并开通正式订阅；列表支持「线下续费」（`POST /platformapi/tenants/:id/offline-renew`）；表单「账号启用」与生命周期列语义拆分
 

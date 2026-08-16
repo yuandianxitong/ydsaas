@@ -158,7 +158,7 @@ class OfficialMarketplaceClient extends Service
         $limit = self::CATALOG_PAGE_SIZE;
 
         for ($page = 1; $page <= self::MAX_CATALOG_PAGES; $page++) {
-            $url = $base . '/api/open/market/apps?page=' . $page . '&limit=' . $limit;
+            $url = $base . '/api/open/market/apps?page=' . $page . '&limit=' . $limit . '&runtime=saas';
             if ($categoryId !== null && $categoryId > 0) {
                 $url .= '&category_id=' . $categoryId;
             }
