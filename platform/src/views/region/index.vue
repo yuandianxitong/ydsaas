@@ -1,5 +1,21 @@
 <template>
     <div class="region-container">
+        <div class="page-head">
+            <div>
+                <div class="page-title">{{ $t('regionMgmt.title') }}</div>
+                <div class="page-desc">{{ $t('regionMgmt.desc') }}</div>
+            </div>
+            <div class="page-actions">
+                <el-button v-if="currentParentId > 0" @click="goBack">
+                    {{ $t('common.back') }}
+                </el-button>
+                <el-button v-has-perm="['region.create']" type="primary" @click="handleAdd">
+                    <i class="i-svg:plus" />
+                    {{ $t('regionMgmt.addRegion') }}
+                </el-button>
+            </div>
+        </div>
+
         <!-- 面包屑导航 -->
         <el-card class="search-card" shadow="never">
             <div class="breadcrumb-bar">
@@ -25,114 +41,76 @@
                         @keyup.enter="handleSearch"
                     />
                     <el-button type="primary" @click="handleSearch">
-                        <el-icon><Search /></el-icon>
+                        <i class="i-svg:search" />
                         {{ $t('common.search') }}
                     </el-button>
                     <el-button @click="resetSearch">
-                        <el-icon><Refresh /></el-icon>
+                        <i class="i-svg:refresh-cw" />
                         {{ $t('common.reset') }}
                     </el-button>
                 </div>
             </div>
         </el-card>
 
-        <!-- 表格区域 -->
-        <el-card class="table-card" shadow="never">
-            <div class="table-header">
-                <div class="table-title">
-                    <el-tag v-if="currentParentId > 0" type="info" size="small" class="level-tag">
-                        {{ levelTextMap[currentLevel] || `Level ${currentLevel}` }}
-                    </el-tag>
-                    {{
-                        currentParentId === 0
-                            ? $t('regionMgmt.title')
-                            : breadcrumbs[breadcrumbs.length - 1]?.name
-                    }}
-                </div>
-                <div class="table-actions">
-                    <el-button v-if="currentParentId > 0" @click="goBack">
-                        <el-icon><Back /></el-icon>
-                        返回上级
-                    </el-button>
-                    <el-button v-has-perm="['region.create']" type="primary" @click="handleAdd">
-                        <el-icon><Plus /></el-icon>
-                        {{ $t('regionMgmt.addRegion') }}
-                    </el-button>
-                </div>
-            </div>
-
-            <el-table v-loading="loading" :data="list" border>
-                <el-table-column :label="$t('regionMgmt.regionName')" prop="name" min-width="200" />
-
-                <el-table-column :label="$t('regionMgmt.regionCode')" prop="code" width="150" />
-
-                <el-table-column :label="$t('regionMgmt.level')" prop="level" width="120">
-                    <template #default="{ row }">
-                        <el-tag :type="levelTagMap[row.level] || 'info'" size="small">
-                            {{ levelTextMap[row.level] || row.level }}
-                        </el-tag>
-                    </template>
-                </el-table-column>
-
-                <el-table-column :label="$t('common.sort')" prop="sort" width="100" />
-
-                <el-table-column :label="$t('common.status')" prop="status" width="100">
-                    <template #default="{ row }">
-                        <el-tag :type="row.status === 1 ? 'success' : 'info'" size="small">
-                            {{ row.status === 1 ? $t('common.enable') : $t('common.disable') }}
-                        </el-tag>
-                    </template>
-                </el-table-column>
-
-                <el-table-column :label="$t('common.operation')" width="320" fixed="right">
-                    <template #default="{ row }">
-                        <el-button type="primary" size="small" text @click="handleDrillDown(row)">
-                            下级管理
-                        </el-button>
-                        <el-button
-                            v-has-perm="['region.create']"
-                            type="primary"
-                            size="small"
-                            text
-                            @click="handleAddChild(row)"
-                        >
-                            {{ $t('regionMgmt.addChildRegion') }}
-                        </el-button>
-                        <el-button
-                            v-has-perm="['region.update']"
-                            type="primary"
-                            size="small"
-                            text
-                            @click="handleEdit(row)"
-                        >
-                            {{ $t('common.edit') }}
-                        </el-button>
-                        <el-button
-                            v-has-perm="['region.delete']"
-                            type="danger"
-                            size="small"
-                            text
-                            @click="handleDelete(row.id, row.name)"
-                        >
-                            {{ $t('common.delete') }}
-                        </el-button>
-                    </template>
-                </el-table-column>
-            </el-table>
-
-            <!-- 分页 -->
-            <el-pagination
-                v-model:current-page="pagination.page"
-                v-model:page-size="pagination.limit"
-                :total="pagination.total"
-                :page-sizes="[20, 50, 100]"
-                layout="total, sizes, prev, pager, next, jumper"
-                class="pagination"
-                background
-                @size-change="handleSizeChange"
-                @current-change="handlePageChange"
-            />
-        </el-card>
+        <ProTable
+            :title="tableTitle"
+            storage-key="platform-region-list"
+            :columns="columns"
+            :data="list"
+            :loading="loading"
+            :pagination="pagination"
+            :batch-delete-fn="handleBatchDelete"
+            @page-change="handlePageChange"
+            @size-change="handleSizeChange"
+        >
+            <template #headerExtra>
+                <el-tag v-if="currentParentId > 0" type="info" size="small">
+                    {{ levelTextMap[currentLevel] || `Level ${currentLevel}` }}
+                </el-tag>
+            </template>
+            <template #level="{ row }">
+                <el-tag :type="levelTagMap[row.level] || 'info'" size="small">
+                    {{ levelTextMap[row.level] || row.level }}
+                </el-tag>
+            </template>
+            <template #status="{ row }">
+                <el-tag :type="row.status === 1 ? 'success' : 'info'" size="small">
+                    {{ row.status === 1 ? $t('common.enable') : $t('common.disable') }}
+                </el-tag>
+            </template>
+            <template #action="{ row }">
+                <el-button type="primary" size="small" text @click="handleDrillDown(row)">
+                    下级管理
+                </el-button>
+                <el-button
+                    v-has-perm="['region.create']"
+                    type="primary"
+                    size="small"
+                    text
+                    @click="handleAddChild(row)"
+                >
+                    {{ $t('regionMgmt.addChildRegion') }}
+                </el-button>
+                <el-button
+                    v-has-perm="['region.update']"
+                    type="primary"
+                    size="small"
+                    text
+                    @click="handleEdit(row)"
+                >
+                    {{ $t('common.edit') }}
+                </el-button>
+                <el-button
+                    v-has-perm="['region.delete']"
+                    type="danger"
+                    size="small"
+                    text
+                    @click="handleDelete(row.id, row.name)"
+                >
+                    {{ $t('common.delete') }}
+                </el-button>
+            </template>
+        </ProTable>
 
         <!-- 表单弹窗 -->
         <RegionForm v-model="formVisible" :form-data="formData" @success="getList" />
@@ -140,11 +118,12 @@
 </template>
 
 <script setup lang="ts" name="RegionList">
-import { Back, Plus, Refresh, Search } from '@element-plus/icons-vue'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { regionApi } from '@/api/region'
+import ProTable from '@/components/ProTable/index.vue'
+import type { ProColumn } from '@/components/ProTable/types'
 import { useListPage } from '@/hooks/useListPage'
 
 import RegionForm from './components/RegionForm.vue'
@@ -171,7 +150,8 @@ const {
     resetSearch,
     handleSizeChange,
     handlePageChange,
-    handleDelete
+    handleDelete,
+    handleBatchDelete
 } = useListPage<any, { keyword: string }>({
     fetchFn: (params) => {
         const query: Record<string, any> = {
@@ -185,8 +165,25 @@ const {
         return regionApi.getList(query)
     },
     deleteFn: (id) => regionApi.delete(id),
+    batchDeleteFn: (ids) => Promise.all(ids.map((id) => regionApi.delete(id))),
     defaultSearchForm: { keyword: '' }
 })
+
+const tableTitle = computed(() =>
+    currentParentId.value === 0
+        ? t('regionMgmt.title')
+        : breadcrumbs.value[breadcrumbs.value.length - 1]?.name || t('regionMgmt.title')
+)
+
+const columns: ProColumn[] = [
+    { key: 'id', label: t('common.id'), prop: 'id', width: 80, required: true },
+    { key: 'name', label: t('regionMgmt.regionName'), prop: 'name', minWidth: 200 },
+    { key: 'code', label: t('regionMgmt.regionCode'), prop: 'code', width: 150 },
+    { key: 'level', label: t('regionMgmt.level'), prop: 'level', width: 120 },
+    { key: 'sort', label: t('common.sort'), prop: 'sort', width: 100 },
+    { key: 'status', label: t('common.status'), prop: 'status', width: 100 },
+    { key: 'action', label: t('common.operation'), width: 320, fixed: 'right', required: true }
+]
 
 const formVisible = ref(false)
 const formData = ref<Record<string, any>>({})
@@ -282,44 +279,30 @@ const handleEdit = (row: any) => {
 </script>
 
 <style lang="scss" scoped>
-.region-container {
-    .search-card {
-        .breadcrumb-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
+.breadcrumb-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
 
-            :deep(.el-breadcrumb) {
-                font-size: 14px;
+    :deep(.el-breadcrumb) {
+        font-size: 14px;
 
-                a {
-                    cursor: pointer;
-                    color: var(--el-color-primary);
+        a {
+            cursor: pointer;
+            color: var(--el-color-primary);
 
-                    &:hover {
-                        text-decoration: underline;
-                    }
-                }
-            }
-
-            .search-actions {
-                display: flex;
-                gap: 8px;
-                align-items: center;
+            &:hover {
+                text-decoration: underline;
             }
         }
     }
 
-    .table-card {
-        .table-header {
-            .table-title {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            }
-        }
+    .search-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
     }
 }
 </style>

@@ -14,34 +14,37 @@ Object.values(ElementPlusIcons).forEach((comp: any) => {
 
 export default defineComponent({
     name: 'Icon',
+    inheritAttrs: false,
     props: {
         name: { type: String, required: true },
         size: { type: [String, Number], default: '1em' },
         color: { type: String, default: 'inherit' }
     },
-    setup(props) {
+    setup(props, { attrs }) {
         return () => {
             const { name, size, color } = props
-            if (typeof name !== 'string') return null
+            if (typeof name !== 'string' || !name) return null
 
-            // 1. ElementPlus 官方图标
+            const style = {
+                fontSize: typeof size === 'number' ? `${size}px` : size,
+                color
+            }
+
+            // 本地 SVG / UnoCSS 图标：与 Shop 一样直接渲 <i>，避免 ElIcon 外包撑开间距
+            if (name.startsWith(LOCAL_ICON_PREFIX) || name.startsWith('i-')) {
+                return h('i', { ...attrs, class: [name, attrs.class], style })
+            }
+
             const ElComp = elIconMap[name]
             if (ElComp) {
-                return createVNode(ElIcon, { size, color }, { default: () => createVNode(ElComp) })
+                return createVNode(
+                    ElIcon,
+                    { size, color, ...attrs },
+                    { default: () => createVNode(ElComp) }
+                )
             }
 
-            // 2. 本地 SVG（由 UnoCSS presetIcons 处理）
-            if (name.startsWith(LOCAL_ICON_PREFIX)) {
-                return h('i', {
-                    class: name,
-                    style: {
-                        fontSize: typeof size === 'number' ? `${size}px` : size,
-                        color
-                    }
-                })
-            }
-
-            return null
+            return h('i', { ...attrs, class: [name, attrs.class], style })
         }
     }
 })

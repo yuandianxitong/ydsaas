@@ -1,5 +1,22 @@
 <template>
     <div class="permission-container">
+        <div class="page-head">
+            <div>
+                <div class="page-title">{{ $t('permission.title') }}</div>
+                <div class="page-desc">{{ $t('permission.desc') }}</div>
+            </div>
+            <div class="page-actions">
+                <el-button
+                    v-has-perm="['platform.permission.create']"
+                    type="primary"
+                    @click="handleAdd"
+                >
+                    <i class="i-svg:plus" />
+                    {{ $t('permission.addPermission') }}
+                </el-button>
+            </div>
+        </div>
+
         <el-card class="search-card" shadow="never">
             <el-form :model="searchForm" inline class="search-form">
                 <el-form-item :label="$t('log.keyword')">
@@ -20,92 +37,54 @@
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="handleSearch">
-                        <el-icon><Search /></el-icon>
+                        <i class="i-svg:search" />
                         {{ $t('common.search') }}
                     </el-button>
                     <el-button @click="resetSearch">
-                        <el-icon><Refresh /></el-icon>
+                        <i class="i-svg:refresh-cw" />
                         {{ $t('common.reset') }}
                     </el-button>
                 </el-form-item>
             </el-form>
         </el-card>
 
-        <el-card class="table-card" shadow="never">
-            <div class="table-header">
-                <div class="table-title">{{ $t('permission.title') }}</div>
-                <div class="table-actions">
-                    <el-button
-                        v-has-perm="['platform.permission.create']"
-                        type="primary"
-                        @click="handleAdd"
-                    >
-                        <el-icon><Plus /></el-icon>
-                        {{ $t('permission.addPermission') }}
-                    </el-button>
-                </div>
-            </div>
-
-            <el-table v-loading="loading" :data="list">
-                <el-table-column :label="$t('common.id')" prop="id" width="80" />
-                <el-table-column
-                    :label="$t('permission.permCode')"
-                    prop="name"
-                    min-width="180"
-                    show-overflow-tooltip
-                />
-                <el-table-column :label="$t('permission.permName')" prop="title" width="150" />
-                <el-table-column :label="$t('permission.group')" prop="group" width="120" />
-                <el-table-column
-                    :label="$t('permission.description')"
-                    prop="description"
-                    min-width="180"
-                    show-overflow-tooltip
-                />
-                <el-table-column :label="$t('common.status')" width="100">
-                    <template #default="{ row }">
-                        <el-tag :type="row.status === 1 ? 'success' : 'danger'" size="small">
-                            {{ row.status === 1 ? $t('common.enable') : $t('common.disable') }}
-                        </el-tag>
-                    </template>
-                </el-table-column>
-                <el-table-column :label="$t('common.sort')" prop="sort" width="80" />
-                <el-table-column :label="$t('common.createdAt')" prop="created_at" width="170" />
-                <el-table-column :label="$t('common.operation')" width="160" fixed="right">
-                    <template #default="{ row }">
-                        <el-button
-                            v-has-perm="['platform.permission.update']"
-                            type="primary"
-                            size="small"
-                            text
-                            @click="handleEdit(row)"
-                        >
-                            {{ $t('common.edit') }}
-                        </el-button>
-                        <el-button
-                            v-has-perm="['platform.permission.delete']"
-                            type="danger"
-                            size="small"
-                            text
-                            @click="handleDelete(row.id, row.title)"
-                        >
-                            {{ $t('common.delete') }}
-                        </el-button>
-                    </template>
-                </el-table-column>
-            </el-table>
-
-            <el-pagination
-                v-model:current-page="pagination.page"
-                v-model:page-size="pagination.limit"
-                :total="pagination.total"
-                :page-sizes="[10, 20, 50, 100]"
-                layout="total, sizes, prev, pager, next, jumper"
-                class="pagination"
-                @size-change="handleSizeChange"
-                @current-change="handlePageChange"
-            />
-        </el-card>
+        <ProTable
+            :title="$t('permission.title')"
+            storage-key="platform-permission-list"
+            :columns="columns"
+            :data="list"
+            :loading="loading"
+            :pagination="pagination"
+            :batch-delete-fn="handleBatchDelete"
+            @page-change="handlePageChange"
+            @size-change="handleSizeChange"
+        >
+            <template #status="{ row }">
+                <el-tag :type="row.status === 1 ? 'success' : 'danger'" size="small">
+                    {{ row.status === 1 ? $t('common.enable') : $t('common.disable') }}
+                </el-tag>
+            </template>
+            <template #action="{ row }">
+                <el-button
+                    v-has-perm="['platform.permission.update']"
+                    type="primary"
+                    size="small"
+                    text
+                    @click="handleEdit(row)"
+                >
+                    {{ $t('common.edit') }}
+                </el-button>
+                <el-button
+                    v-has-perm="['platform.permission.delete']"
+                    type="danger"
+                    size="small"
+                    text
+                    @click="handleDelete(row.id, row.title)"
+                >
+                    {{ $t('common.delete') }}
+                </el-button>
+            </template>
+        </ProTable>
 
         <!-- 新增/编辑弹窗 -->
         <el-dialog
@@ -159,12 +138,13 @@
 </template>
 
 <script setup lang="ts">
-import { Plus, Refresh, Search } from '@element-plus/icons-vue'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { permissionApi } from '@/api/permission'
+import ProTable from '@/components/ProTable/index.vue'
+import type { ProColumn } from '@/components/ProTable/types'
 import { useListPage } from '@/hooks/useListPage'
 
 const { t } = useI18n()
@@ -179,12 +159,38 @@ const {
     resetSearch,
     handleSizeChange,
     handlePageChange,
-    handleDelete
+    handleDelete,
+    handleBatchDelete
 } = useListPage<any, { keyword: string; group: string }>({
     fetchFn: (params) => permissionApi.list(params),
     deleteFn: (id) => permissionApi.delete(id),
+    batchDeleteFn: (ids) => Promise.all(ids.map((id) => permissionApi.delete(id))),
     defaultSearchForm: { keyword: '', group: '' }
 })
+
+const columns: ProColumn[] = [
+    { key: 'id', label: t('common.id'), prop: 'id', width: 80, required: true },
+    {
+        key: 'name',
+        label: t('permission.permCode'),
+        prop: 'name',
+        minWidth: 180,
+        showOverflowTooltip: true
+    },
+    { key: 'title', label: t('permission.permName'), prop: 'title', width: 150 },
+    { key: 'group', label: t('permission.group'), prop: 'group', width: 120 },
+    {
+        key: 'description',
+        label: t('permission.description'),
+        prop: 'description',
+        minWidth: 180,
+        showOverflowTooltip: true
+    },
+    { key: 'status', label: t('common.status'), width: 100 },
+    { key: 'sort', label: t('common.sort'), prop: 'sort', width: 90 },
+    { key: 'created_at', label: t('common.createdAt'), prop: 'created_at', width: 180 },
+    { key: 'action', label: t('common.operation'), width: 160, fixed: 'right', required: true }
+]
 
 const formVisible = ref(false)
 const formData = ref<any>({ status: 1, sort: 0 })
@@ -235,8 +241,3 @@ const handleSubmit = async () => {
 }
 </script>
 
-<style lang="scss" scoped>
-.permission-container {
-    // 业务特有样式（search-card / table-header / pagination 已在全局）
-}
-</style>

@@ -11,7 +11,9 @@
             <el-col :span="8">
                 <el-card shadow="hover" class="stat-card">
                     <div class="stat-label">{{ $t('dashboard.activeTenants') }}</div>
-                    <div class="stat-value" style="color: #67c23a">{{ stats.tenant_active }}</div>
+                    <div class="stat-value" style="color: var(--success)">
+                        {{ stats.tenant_active }}
+                    </div>
                 </el-card>
             </el-col>
             <el-col :span="8">
@@ -19,7 +21,9 @@
                     <div class="stat-label">{{ $t('dashboard.expiring7d') }}</div>
                     <div
                         class="stat-value"
-                        :style="{ color: stats.expiring_7d > 0 ? '#e6a23c' : '#909399' }"
+                        :style="{
+                            color: stats.expiring_7d > 0 ? 'var(--amber-500)' : 'var(--ink-400)'
+                        }"
                     >
                         {{ stats.expiring_7d }}
                     </div>
@@ -30,7 +34,7 @@
             <el-col :span="8">
                 <el-card shadow="hover" class="stat-card">
                     <div class="stat-label">{{ $t('dashboard.monthlyRevenue') }}</div>
-                    <div class="stat-value" style="color: #409eff">
+                    <div class="stat-value" style="color: var(--brand-500)">
                         {{ fmtMoney(stats.monthly_revenue) }}
                     </div>
                 </el-card>
@@ -38,7 +42,7 @@
             <el-col :span="8">
                 <el-card shadow="hover" class="stat-card">
                     <div class="stat-label">{{ $t('dashboard.yearlyRevenue') }}</div>
-                    <div class="stat-value" style="color: #409eff">
+                    <div class="stat-value" style="color: var(--brand-500)">
                         {{ fmtMoney(stats.yearly_revenue) }}
                     </div>
                 </el-card>
@@ -252,8 +256,8 @@ const revenueChartOption = computed(() => ({
             data: revenueTrendData.value.map((d) => d.amount),
             smooth: true,
             areaStyle: { opacity: 0.15 },
-            itemStyle: { color: '#409eff' },
-            lineStyle: { color: '#409eff' }
+            itemStyle: { color: '#4f6bff' },
+            lineStyle: { color: '#4f6bff' }
         }
     ]
 }))
@@ -287,7 +291,7 @@ const tenantTrendOption = computed(() => ({
         {
             type: 'bar',
             data: stats.tenant_trend.map((d) => d.count),
-            itemStyle: { color: '#409eff' },
+            itemStyle: { color: '#4f6bff' },
             barMaxWidth: 40
         }
     ]

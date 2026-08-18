@@ -75,7 +75,8 @@ const main = {
         quickFill: '快速填写',
         reg: '注 册',
         title: '欢迎使用 元点Saas 管理系统',
-        subtitle: '开箱即用的多租户 SaaS 应用框架，支持子域名隔离、应用市场与订阅计费，助力企业快速交付行业 SaaS',
+        subtitle:
+            '开箱即用的多租户 SaaS 应用框架，支持子域名隔离、应用市场与订阅计费，助力企业快速交付行业 SaaS',
         welcome: '欢迎登录',
         enterCredentials: '请输入您的账号信息',
         feature1: 'Vue 3 + TypeScript 现代技术栈',
@@ -125,22 +126,9 @@ const main = {
         classicBlue: '经典蓝',
         minimalWhite: '极简白',
         title: '系统设置',
-        themeMode: '主题模式',
-        themeModes: { system: '跟随系统', light: '浅色', dark: '深色' },
         primaryColor: '主色调',
-        primaryColors: {
-            current: '当前',
-            purple: '紫色',
-            blue: '蓝色',
-            green: '绿色',
-            orange: '橙色',
-            magenta: '品红',
-            red: '红色'
-        },
-        darkTheme: '暗色主题',
-        darkThemes: { mint: '薄荷', navy: '海军蓝', mirage: '幻影', cinder: '煤灰', black: '纯黑' },
-        layoutMode: '布局模式',
-        layoutModes: { classic: '经典布局', sidebar: '正常侧栏' },
+        compact: '紧凑模式',
+        sidebarLabels: '侧栏文字',
         otherSettings: '其他设置',
         reset: '重置设置'
     },
@@ -201,6 +189,20 @@ const main = {
         statusUpdateSuccess: '状态更新成功',
         loading: '加载中...',
         noData: '暂无数据',
+        totalCount: '共 {total} 条',
+        totalRecords: '共 {total} 条记录',
+        columnConfig: '列配置',
+        columnConfigHint: '勾选显示列、拖动调整顺序、设置固定',
+        selectedCount: '已选 {count} 项',
+        clearSelection: '取消选择',
+        restoreDefault: '恢复默认',
+        apply: '应用',
+        selectAll: '全选',
+        shownColumns: '已显示 {shown} / {total} 列',
+        requiredCol: '必选',
+        autoWidth: '自适应',
+        pinLeft: '固定左侧',
+        pinRight: '固定右侧',
         all: '全部',
         yes: '是',
         no: '否',
@@ -327,6 +329,7 @@ const main = {
     system: {
         menu: {
             title: '菜单管理',
+            desc: '维护平台菜单与权限点',
             menuName: '菜单名称',
             menuType: '菜单类型',
             directory: '目录',
@@ -348,10 +351,32 @@ const main = {
             affix: '固定标签',
             badge: '徽标',
             iframe: '内嵌页面',
-            searchPlaceholder: '搜索菜单名称'
+            searchPlaceholder: '搜索菜单名称',
+            menuStructure: '菜单结构',
+            menuDetail: '菜单详情',
+            addChildMenu: '新增子菜单',
+            basicInfo: '基本信息',
+            displayBehavior: '显示与行为',
+            selectMenuTip: '请从左侧选择一个菜单进行编辑',
+            saveChanges: '保存修改',
+            hiddenTip: '关闭后菜单将停用',
+            cacheTip: '开启后页面将被缓存',
+            affixTip: '开启后固定在标签栏',
+            hiddenFromNavTip: '开启后不在导航中显示',
+            namePlaceholder: '请输入菜单名称',
+            permPlaceholder: '如 system.admin.list',
+            routePathPlaceholder: '请输入路由路径',
+            componentPlaceholder: '请输入组件路径',
+            routeNamePlaceholder: '请输入路由名称',
+            parentMenuPlaceholder: '请选择上级菜单',
+            validate: {
+                nameRequired: '请输入菜单名称',
+                typeRequired: '请选择菜单类型'
+            }
         },
         admin: {
             title: '管理员管理',
+            desc: '管理平台管理员账号',
             username: '用户名',
             nickname: '昵称',
             email: '邮箱',
@@ -369,6 +394,7 @@ const main = {
         },
         role: {
             title: '角色管理',
+            desc: '配置平台角色与权限',
             roleName: '角色名称',
             roleCode: '角色编码',
             addRole: '新建角色',
@@ -381,6 +407,7 @@ const main = {
         },
         log: {
             title: '日志管理',
+            desc: '查看登录与操作日志',
             loginLog: '登录日志',
             operationLog: '操作日志',
             loginIp: '登录IP',
@@ -400,6 +427,7 @@ const main = {
         },
         config: {
             title: '系统配置',
+            desc: '配置平台站点与运行参数',
             group: '配置分组',
             basic: '基础设置',
             upload: '上传设置',
@@ -414,6 +442,7 @@ const main = {
     // === 租户管理 ===
     tenant: {
         title: '租户管理',
+        desc: '管理租户开通、订阅与生命周期',
         tenantCode: '租户编码',
         tenantName: '租户名称',
         plan: '套餐',
@@ -473,6 +502,7 @@ const main = {
     // === 套餐管理 ===
     plan: {
         title: '套餐管理',
+        desc: '配置套餐价格、配额与功能开关',
         planCode: '套餐编码',
         planName: '套餐名称',
         priceMonthly: '月付价格',
@@ -537,6 +567,7 @@ const main = {
     // === 订单管理 ===
     order: {
         title: '订单管理',
+        desc: '查看订阅订单与支付状态',
         orderNo: '订单号',
         tenantName: '租户名称',
         planName: '套餐名称',
@@ -588,6 +619,7 @@ const main = {
     // === 退款管理 ===
     refund: {
         title: '退款管理',
+        desc: '处理平台订单退款',
         refundNo: '退款单号',
         orderNo: '关联订单',
         amount: '退款金额',
@@ -643,6 +675,7 @@ const main = {
     // === 移动构建监控 ===
     mobileBuild: {
         title: '移动构建监控',
+        desc: '监控各租户移动端构建任务',
         platform: '平台',
         mpWeixin: '微信小程序',
         buildNo: '构建号',
@@ -664,6 +697,7 @@ const main = {
     // === 审核管理 ===
     audit: {
         title: '租户操作审计日志',
+        desc: '查看租户后台操作审计',
         auditType: '审核类型',
         auditStatus: '审核状态',
         auditTime: '审核时间',
@@ -687,6 +721,7 @@ const main = {
     // === 公告管理 ===
     announcement: {
         title: '公告管理',
+        desc: '向租户发布平台公告',
         announcementTitle: '公告标题',
         content: '公告内容',
         publishTime: '发布时间',
@@ -716,6 +751,7 @@ const main = {
     // === 定时任务 ===
     cronJob: {
         title: '定时任务',
+        desc: '管理定时任务与执行日志',
         addTask: '新增任务',
         editTask: '编辑任务',
         taskName: '任务名称',
@@ -748,11 +784,19 @@ const main = {
     // === 文件管理 ===
     file: {
         title: '文件管理',
+        desc: '管理平台上传文件',
         fileGroup: '文件分组',
         allFiles: '全部文件',
         searchPlaceholder: '搜索文件名',
         fileType: '文件类型',
+        category: '分类',
         image: '图片',
+        video: '视频',
+        audio: '音频',
+        document: '文档',
+        archive: '压缩包',
+        other: '其他',
+        empty: '暂无文件',
         file: '文件',
         fileName: '文件名',
         type: '类型',
@@ -769,6 +813,7 @@ const main = {
     // === 字典管理 ===
     dictionary: {
         title: '数据字典',
+        desc: '维护系统数据字典',
         addDict: '新增字典',
         editDict: '编辑字典',
         dictName: '字典名称',
@@ -778,6 +823,13 @@ const main = {
         statusPlaceholder: '请选择状态',
         items: '字典项',
         itemsTitle: '字典项 — {name}',
+        itemsSubtitle: '字典编码',
+        itemsCount: '共 {count} 项',
+        searchItems: '搜索标签或值',
+        batchDisable: '批量停用',
+        export: '导出',
+        addItemShort: '新增数据项',
+        dragHint: '拖拽行首图标可调整顺序',
         addItem: '新增字典项',
         editItem: '编辑字典项',
         label: '标签',
@@ -807,6 +859,8 @@ const main = {
 
     // === 代码生成器 ===
     generator: {
+        title: '代码生成',
+        desc: '从数据表生成 CRUD 代码',
         step1: '选择数据表',
         step2: '配置字段',
         step3: '预览 & 生成',
@@ -859,6 +913,7 @@ const main = {
     // === API 文档 ===
     apiDoc: {
         title: 'API 文档',
+        desc: '浏览平台、租户与前端 API 文档',
         openSwagger: '在新窗口打开 Swagger UI',
         downloadJson: '下载 OpenAPI JSON',
         loadFailed: '加载 API 文档失败',
@@ -1011,6 +1066,7 @@ const main = {
     // 系统配置
     config: {
         title: '设置',
+        desc: '配置平台站点与运行参数',
         exportTitle: '导出设置',
         saveConfig: '保存配置',
         resetConfig: '重置',
@@ -1168,6 +1224,7 @@ const main = {
     // 权限管理
     permission: {
         title: '权限管理',
+        desc: '查看与分配平台权限',
         addPermission: '新增权限',
         editPermission: '编辑权限',
         permCode: '权限标识',
@@ -1303,6 +1360,7 @@ const main = {
     // 地区数据
     regionMgmt: {
         title: '地区数据',
+        desc: '维护省市区地区数据',
         addRegion: '新增地区',
         addChildRegion: '新增下级',
         editRegion: '编辑地区',
@@ -1327,6 +1385,7 @@ const main = {
     // 版本管理
     versionMgmt: {
         title: '版本管理',
+        desc: '管理客户端版本发布',
         addVersion: '新增版本',
         editVersion: '编辑版本',
         platform: '平台',
@@ -1350,6 +1409,18 @@ const main = {
             versionCodeRequired: '请输入版本编号',
             downloadUrlRequired: '请输入下载地址'
         }
+    },
+    plugin: {
+        title: '插件管理',
+        desc: '管理本地插件与官方市场',
+        local: '本地插件',
+        marketplace: '官方市场'
+    },
+    license: {
+        title: '产品授权',
+        desc: '录入官网购买的平台授权码，激活后可解锁官方应用市场等商业能力',
+        refresh: '刷新状态',
+        heartbeat: '立即校验'
     }
 }
 

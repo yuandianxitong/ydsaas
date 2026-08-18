@@ -17,41 +17,35 @@ async function onInstalled() {
 
 <template>
     <div class="plugin-container">
-        <el-card class="plugin-shell" shadow="never">
+        <div class="page-head">
+            <div>
+                <div class="page-title">{{ $t('plugin.title') }}</div>
+                <div class="page-desc">{{ $t('plugin.desc') }}</div>
+            </div>
+        </div>
+
+        <div class="set-card plugin-shell">
             <el-tabs v-model="activeTab" class="plugin-tabs">
-                <el-tab-pane label="本地插件" name="local">
+                <el-tab-pane :label="$t('plugin.local')" name="local">
                     <LocalPluginsPanel ref="localPanelRef" />
                 </el-tab-pane>
-                <el-tab-pane label="官方市场" name="marketplace">
+                <el-tab-pane :label="$t('plugin.marketplace')" name="marketplace">
                     <MarketplacePanel v-if="activeTab === 'marketplace'" @installed="onInstalled" />
                 </el-tab-pane>
             </el-tabs>
-        </el-card>
+        </div>
     </div>
 </template>
 
 <style scoped>
 .plugin-shell {
     overflow: hidden;
-    background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(250, 252, 255, 0.96) 100%),
-        var(--color-surface);
-    box-shadow: 0 12px 32px rgba(31, 41, 55, 0.08);
-}
-
-.plugin-shell :deep(.el-card__header) {
-    padding: 0 20px;
-    border-bottom: 1px solid var(--el-border-color-lighter);
-}
-
-.plugin-shell :deep(.el-card__body) {
-    padding: 0;
 }
 
 .plugin-tabs :deep(.el-tabs__header) {
     margin: 0;
     padding: 0 20px;
-    border-bottom: 1px solid var(--el-border-color-lighter);
+    border-bottom: 1px solid var(--ink-100);
 }
 
 .plugin-tabs :deep(.el-tabs__nav-wrap::after) {
@@ -59,7 +53,7 @@ async function onInstalled() {
 }
 
 .plugin-tabs :deep(.el-tabs__item) {
-    height: 58px;
+    height: 52px;
     padding: 0 18px;
     font-weight: 500;
 }

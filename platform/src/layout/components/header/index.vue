@@ -9,56 +9,41 @@
         >
             <span>{{ globalLicenseAlert.message }}</span>
         </el-alert>
-        <div
-            class="navbar flex items-center border-b border-b-solid border-b-[var(--color-divider)] px-4 py-2.5"
-        >
-            <div class="flex-1 flex">
-                <div v-if="!isMobile && settingStore.showCrumb" class="flex items-center px-2">
+        <div class="navbar flex items-center px-5 gap-4">
+            <div class="flex-1 flex min-w-0">
+                <div v-if="!isMobile && settingStore.showCrumb" class="flex items-center">
                     <breadcrumb />
                 </div>
             </div>
-            <div class="flex items-center">
-                <div
+            <div class="flex items-center gap-1.5">
+                <button
                     v-if="!isMobile"
-                    class="bg-[var(--gray-100)] text-[var(--color-text-secondary)] w-[34px] h-[34px] rounded-full flex items-center justify-center cursor-pointer mr-4"
+                    class="top-btn"
+                    type="button"
+                    :title="isFullscreen ? $t('header.exitFullscreen') : $t('header.fullscreen')"
                     @click="toggleFullscreen"
                 >
-                    <el-tooltip
-                        effect="dark"
-                        :content="
-                            isFullscreen ? $t('header.exitFullscreen') : $t('header.fullscreen')
-                        "
-                        placement="bottom"
-                    >
-                        <Icon name="i-svg:maximize"></Icon>
-                    </el-tooltip>
-                </div>
+                    <Icon name="i-svg:maximize" :size="17" />
+                </button>
                 <lang-select />
-                <div
-                    class="bg-[var(--gray-100)] text-[var(--color-text-secondary)] w-[34px] h-[34px] rounded-full flex items-center justify-center cursor-pointer mr-4"
+                <button
+                    class="top-btn"
+                    type="button"
+                    :title="$t('header.clearCache')"
                     @click="handleClearCache"
                 >
-                    <el-tooltip
-                        class="box-item"
-                        effect="dark"
-                        :content="$t('header.clearCache')"
-                        placement="bottom"
-                    >
-                        <Icon name="i-svg:refresh-cw"></Icon>
-                    </el-tooltip>
-                </div>
-                <div
-                    class="bg-[var(--gray-100)] text-[var(--color-text-secondary)] w-[34px] h-[34px] rounded-full flex items-center justify-center cursor-pointer mr-4"
+                    <Icon name="i-svg:refresh-cw" :size="17" />
+                </button>
+                <button
+                    class="top-btn"
+                    type="button"
+                    :title="$t('header.settings')"
                     @click="openSetting"
                 >
-                    <el-tooltip effect="dark" :content="$t('header.settings')" placement="bottom">
-                        <Icon name="i-svg:settings"></Icon>
-                    </el-tooltip>
-                </div>
+                    <Icon name="i-svg:settings" :size="17" />
+                </button>
                 <layout-setting />
-                <div class="navbar-item">
-                    <user-drop-down />
-                </div>
+                <user-drop-down />
             </div>
         </div>
         <multiple-tabs v-if="settingStore.openMultipleTabs" />
@@ -160,8 +145,32 @@ onMounted(() => {
 
 <style lang="scss">
 .navbar {
-    height: var(--navbar-height);
+    height: var(--header-h);
+    background: #fff;
+    border-bottom: 1px solid var(--ink-100);
 }
+
+.top-btn {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: var(--r-lg);
+    background: transparent;
+    color: var(--ink-500);
+    cursor: pointer;
+    transition:
+        background 0.15s,
+        color 0.15s;
+
+    &:hover {
+        background: var(--ink-100);
+        color: var(--ink-800);
+    }
+}
+
 .license-banner {
     border-radius: 0;
     padding: 8px 16px;

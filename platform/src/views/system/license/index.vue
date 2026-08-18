@@ -1,27 +1,29 @@
 <template>
     <div class="platform-license">
-        <el-card class="box-card" shadow="never">
-            <template #header>
-                <div class="card-head">
-                    <div>
-                        <div class="title">产品授权</div>
-                        <div class="desc">
-                            录入官网购买的平台授权码，激活后可解锁官方应用市场等商业能力
-                        </div>
-                    </div>
-                    <div class="actions">
-                        <el-button :loading="loading" @click="loadStatus">刷新状态</el-button>
-                        <el-button
-                            v-if="canUpdate && hasKey"
-                            :loading="heartbeatLoading"
-                            @click="handleHeartbeat"
-                        >
-                            立即校验
-                        </el-button>
-                    </div>
-                </div>
-            </template>
+        <div class="page-head">
+            <div>
+                <div class="page-title">{{ $t('license.title') }}</div>
+                <div class="page-desc">{{ $t('license.desc') }}</div>
+            </div>
+            <div class="page-actions">
+                <el-button :loading="loading" @click="loadStatus">{{
+                    $t('license.refresh')
+                }}</el-button>
+                <el-button
+                    v-if="canUpdate && hasKey"
+                    :loading="heartbeatLoading"
+                    @click="handleHeartbeat"
+                >
+                    {{ $t('license.heartbeat') }}
+                </el-button>
+            </div>
+        </div>
 
+        <div class="set-card">
+            <div class="set-card-head">
+                <h3>{{ $t('license.title') }}</h3>
+            </div>
+            <div class="set-card-body">
             <div class="status-row">
                 <el-tag :type="statusTagType" size="large" effect="dark">{{ statusLabel }}</el-tag>
                 <span class="status-msg">{{ status?.message || '加载中…' }}</span>
@@ -47,17 +49,15 @@
                     {{ checkedAtText }}
                 </el-descriptions-item>
             </el-descriptions>
-        </el-card>
+            </div>
+        </div>
 
-        <el-card class="box-card mt-4" shadow="never">
-            <template #header>
-                <div class="card-head">
-                    <div>
-                        <div class="title">录入 / 激活授权</div>
-                        <div class="desc">授权码来自官网「我的授权」；首次激活绑定部署域名</div>
-                    </div>
-                </div>
-            </template>
+        <div class="set-card mt-4">
+            <div class="set-card-head">
+                <h3>录入 / 激活授权</h3>
+                <span class="dsc">授权码来自官网「我的授权」；首次激活绑定部署域名</span>
+            </div>
+            <div class="set-card-body">
 
             <el-alert
                 type="info"
@@ -104,7 +104,8 @@
                     </el-button>
                 </el-form-item>
             </el-form>
-        </el-card>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -234,22 +235,6 @@ onMounted(loadStatus)
 
 <style scoped lang="scss">
 .platform-license {
-    .card-head {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 16px;
-    }
-    .title {
-        font-size: 16px;
-        font-weight: 600;
-        color: var(--el-text-color-primary);
-    }
-    .desc {
-        margin-top: 4px;
-        font-size: 13px;
-        color: var(--el-text-color-secondary);
-    }
     .status-row {
         display: flex;
         align-items: center;

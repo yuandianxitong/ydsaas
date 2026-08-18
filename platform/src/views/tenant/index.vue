@@ -1,5 +1,18 @@
 <template>
     <div class="tenant-container">
+        <div class="page-head">
+            <div>
+                <div class="page-title">{{ $t('tenant.title') }}</div>
+                <div class="page-desc">{{ $t('tenant.desc') }}</div>
+            </div>
+            <div class="page-actions">
+                <el-button v-perms="'platform.tenant.create'" type="primary" @click="handleAdd">
+                    <i class="i-svg:plus" />
+                    {{ $t('tenant.addTenant') }}
+                </el-button>
+            </div>
+        </div>
+
         <!-- 搜索区域 -->
         <el-card class="search-card" shadow="never">
             <el-form :model="searchForm" inline class="search-form">
@@ -25,167 +38,87 @@
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="handleSearch">
-                        <el-icon><Search /></el-icon>
+                        <i class="i-svg:search" />
                         {{ $t('common.search') }}
                     </el-button>
                     <el-button @click="resetSearch">
-                        <el-icon><Refresh /></el-icon>
+                        <i class="i-svg:refresh-cw" />
                         {{ $t('common.reset') }}
                     </el-button>
                 </el-form-item>
             </el-form>
         </el-card>
 
-        <!-- 操作区域 -->
-        <el-card class="table-card" shadow="never">
-            <div class="table-header">
-                <div class="table-title">{{ $t('tenant.title') }}</div>
-                <div class="table-actions">
-                    <el-button v-perms="'platform.tenant.create'" type="primary" @click="handleAdd">
-                        <el-icon><Plus /></el-icon>
-                        {{ $t('tenant.addTenant') }}
-                    </el-button>
-                </div>
-            </div>
-
-            <!-- 表格 -->
-            <el-table v-loading="loading" :data="list" stripe>
-                <el-table-column label="ID" prop="id" width="80" />
-
-                <el-table-column
-                    :label="$t('tenant.tenantCode')"
-                    prop="tenant_code"
-                    min-width="120"
-                    show-overflow-tooltip
-                />
-
-                <el-table-column
-                    :label="$t('tenant.tenantName')"
-                    prop="name"
-                    min-width="150"
-                    show-overflow-tooltip
-                />
-
-                <el-table-column
-                    label="租户域名"
-                    prop="access_domain"
-                    min-width="200"
-                    show-overflow-tooltip
+        <ProTable
+            :title="$t('tenant.title')"
+            storage-key="platform-tenant-list"
+            :columns="columns"
+            :data="list"
+            :loading="loading"
+            :pagination="pagination"
+            :batch-delete-fn="handleBatchDelete"
+            @page-change="handlePageChange"
+            @size-change="handleSizeChange"
+        >
+            <template #access_domain="{ row }">
+                <a
+                    v-if="row.access_domain"
+                    :href="`//${row.access_domain}`"
+                    target="_blank"
+                    rel="noopener"
+                    class="domain-link"
                 >
-                    <template #default="{ row }">
-                        <a
-                            v-if="row.access_domain"
-                            :href="`//${row.access_domain}`"
-                            target="_blank"
-                            rel="noopener"
-                            class="domain-link"
-                        >
-                            {{ row.access_domain }}
-                        </a>
-                        <span v-else>—</span>
-                    </template>
-                </el-table-column>
-
-                <el-table-column
-                    :label="$t('tenant.contactName')"
-                    prop="contact_name"
-                    min-width="120"
-                    show-overflow-tooltip
-                />
-
-                <el-table-column
-                    :label="$t('tenant.contactPhone')"
-                    prop="contact_phone"
-                    min-width="140"
-                    show-overflow-tooltip
-                />
-
-                <el-table-column
-                    :label="$t('tenant.plan')"
-                    prop="plan_name"
-                    min-width="100"
-                    align="center"
+                    {{ row.access_domain }}
+                </a>
+                <span v-else>—</span>
+            </template>
+            <template #plan_name="{ row }">
+                <el-tag v-if="row.plan_name" size="small" type="info">{{ row.plan_name }}</el-tag>
+                <span v-else class="muted">未绑定</span>
+            </template>
+            <template #lifecycle_state="{ row }">
+                <el-tag :type="lifecycleTagType(row.lifecycle_state)">
+                    {{ lifecycleLabel(row.lifecycle_state) }}
+                </el-tag>
+            </template>
+            <template #expires_at="{ row }">{{ row.expires_at || '—' }}</template>
+            <template #action="{ row }">
+                <el-button
+                    v-perms="'platform.tenant.update'"
+                    type="primary"
+                    size="small"
+                    text
+                    @click="handleEdit(row)"
                 >
-                    <template #default="{ row }">
-                        <el-tag v-if="row.plan_name" size="small" type="info">{{
-                            row.plan_name
-                        }}</el-tag>
-                        <span v-else class="muted">未绑定</span>
-                    </template>
-                </el-table-column>
-
-                <el-table-column :label="$t('common.status')" width="110" align="center">
-                    <template #default="{ row }">
-                        <el-tag :type="lifecycleTagType(row.lifecycle_state)">
-                            {{ lifecycleLabel(row.lifecycle_state) }}
-                        </el-tag>
-                    </template>
-                </el-table-column>
-
-                <el-table-column :label="$t('tenant.expiredAt')" prop="expires_at" min-width="160">
-                    <template #default="{ row }">
-                        {{ row.expires_at || '—' }}
-                    </template>
-                </el-table-column>
-
-                <el-table-column
-                    :label="$t('common.createdAt')"
-                    prop="created_at"
-                    min-width="160"
-                />
-
-                <el-table-column :label="$t('common.operation')" width="320" fixed="right">
-                    <template #default="{ row }">
-                        <el-button
-                            v-perms="'platform.tenant.update'"
-                            type="primary"
-                            size="small"
-                            text
-                            @click="handleEdit(row)"
-                        >
-                            {{ $t('common.edit') }}
+                    {{ $t('common.edit') }}
+                </el-button>
+                <el-button
+                    v-perms="'platform.tenant.update'"
+                    type="success"
+                    size="small"
+                    text
+                    @click="openOfflineRenew(row)"
+                >
+                    {{ $t('tenant.offlineRenew') }}
+                </el-button>
+                <el-button type="warning" size="small" text @click="handleAdmins(row)">
+                    {{ $t('tenant.tenantAdmins') }}
+                </el-button>
+                <el-popconfirm
+                    v-perms="'platform.tenant.delete'"
+                    :title="$t('common.deleteConfirm')"
+                    :confirm-button-text="$t('common.confirm')"
+                    :cancel-button-text="$t('common.cancel')"
+                    @confirm="handleDelete(row.id, row.name)"
+                >
+                    <template #reference>
+                        <el-button type="danger" size="small" text>
+                            {{ $t('common.delete') }}
                         </el-button>
-                        <el-button
-                            v-perms="'platform.tenant.update'"
-                            type="success"
-                            size="small"
-                            text
-                            @click="openOfflineRenew(row)"
-                        >
-                            {{ $t('tenant.offlineRenew') }}
-                        </el-button>
-                        <el-button type="warning" size="small" text @click="handleAdmins(row)">
-                            {{ $t('tenant.tenantAdmins') }}
-                        </el-button>
-                        <el-popconfirm
-                            v-perms="'platform.tenant.delete'"
-                            :title="$t('common.deleteConfirm')"
-                            :confirm-button-text="$t('common.confirm')"
-                            :cancel-button-text="$t('common.cancel')"
-                            @confirm="handleDelete(row.id, row.name)"
-                        >
-                            <template #reference>
-                                <el-button type="danger" size="small" text>
-                                    {{ $t('common.delete') }}
-                                </el-button>
-                            </template>
-                        </el-popconfirm>
                     </template>
-                </el-table-column>
-            </el-table>
-
-            <!-- 分页 -->
-            <el-pagination
-                v-model:current-page="pagination.page"
-                v-model:page-size="pagination.limit"
-                :total="pagination.total"
-                :page-sizes="[10, 20, 50, 100]"
-                layout="total, sizes, prev, pager, next, jumper"
-                class="pagination"
-                @size-change="handleSizeChange"
-                @current-change="handlePageChange"
-            />
-        </el-card>
+                </el-popconfirm>
+            </template>
+        </ProTable>
 
         <!-- 新增/编辑弹窗 -->
         <TenantForm v-model="formVisible" :source-id="currentId" @success="getList" />
@@ -245,13 +178,14 @@
 </template>
 
 <script setup lang="ts" name="TenantList">
-import { Plus, Refresh, Search } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { planApi } from '@/api/plan'
 import { tenantApi } from '@/api/tenant'
+import ProTable from '@/components/ProTable/index.vue'
+import type { ProColumn } from '@/components/ProTable/types'
 import { useListPage } from '@/hooks/useListPage'
 import type { PlanInfo, TenantInfo, TenantQuery } from '@/types/api'
 
@@ -276,17 +210,56 @@ const {
     resetSearch,
     handleSizeChange,
     handlePageChange,
-    handleDelete
+    handleDelete,
+    handleBatchDelete
 } = useListPage<TenantInfo, TenantSearchForm>({
     fetchFn: (params) => tenantApi.list(params as TenantQuery),
     deleteFn: (id) => tenantApi.destroy(id),
+    batchDeleteFn: (ids) => Promise.all(ids.map((id) => tenantApi.destroy(id))),
     defaultSearchForm: {
         keyword: '',
         status: ''
     }
 })
 
-// 弹窗状态
+const columns: ProColumn[] = [
+    { key: 'id', label: 'ID', prop: 'id', width: 80, required: true },
+    {
+        key: 'tenant_code',
+        label: t('tenant.tenantCode'),
+        prop: 'tenant_code',
+        minWidth: 120,
+        showOverflowTooltip: true
+    },
+    { key: 'name', label: t('tenant.tenantName'), prop: 'name', minWidth: 150, showOverflowTooltip: true },
+    {
+        key: 'access_domain',
+        label: '租户域名',
+        prop: 'access_domain',
+        minWidth: 200,
+        showOverflowTooltip: true
+    },
+    {
+        key: 'contact_name',
+        label: t('tenant.contactName'),
+        prop: 'contact_name',
+        minWidth: 120,
+        showOverflowTooltip: true
+    },
+    {
+        key: 'contact_phone',
+        label: t('tenant.contactPhone'),
+        prop: 'contact_phone',
+        minWidth: 140,
+        showOverflowTooltip: true
+    },
+    { key: 'plan_name', label: t('tenant.plan'), prop: 'plan_name', minWidth: 110, align: 'center' },
+    { key: 'lifecycle_state', label: t('common.status'), width: 110, align: 'center' },
+    { key: 'expires_at', label: t('tenant.expiredAt'), prop: 'expires_at', minWidth: 180 },
+    { key: 'created_at', label: t('common.createdAt'), prop: 'created_at', minWidth: 180 },
+    { key: 'action', label: t('common.operation'), width: 320, fixed: 'right', required: true }
+]
+
 const formVisible = ref(false)
 const currentId = ref<number | undefined>(undefined)
 
@@ -412,28 +385,4 @@ const lifecycleTagType = (state?: LifecycleState): 'success' | 'warning' | 'dang
     font-size: 12px;
 }
 
-.tenant-container {
-    /* 外层 LayoutMain 已有 padding */
-    .search-card {
-        margin-bottom: 16px;
-    }
-
-    .table-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 16px;
-
-        .table-title {
-            font-size: 16px;
-            font-weight: 600;
-        }
-    }
-
-    .pagination {
-        margin-top: 16px;
-        display: flex;
-        justify-content: flex-end;
-    }
-}
 </style>

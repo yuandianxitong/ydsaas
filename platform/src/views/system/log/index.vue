@@ -1,10 +1,32 @@
 <template>
     <div class="log-container">
-        <el-tabs v-model="activeTab" class="log-tabs">
-            <!-- 登录日志 -->
-            <el-tab-pane :label="$t('system.log.loginLog')" name="login">
-                <el-card class="search-card" shadow="never">
-                    <el-form :model="loginSearchForm" inline class="search-form">
+        <div class="page-head">
+            <div>
+                <div class="page-title">{{ $t('system.log.title') }}</div>
+                <div class="page-desc">{{ $t('system.log.desc') }}</div>
+            </div>
+        </div>
+
+        <el-card class="search-card" shadow="never">
+            <div class="search-bar">
+                <div class="search-tabs">
+                    <button :class="{ on: activeTab === 'login' }" @click="activeTab = 'login'">
+                        {{ $t('system.log.loginLog') }}
+                    </button>
+                    <button
+                        :class="{ on: activeTab === 'operation' }"
+                        @click="activeTab = 'operation'"
+                    >
+                        {{ $t('system.log.operationLog') }}
+                    </button>
+                </div>
+
+                <el-form
+                    :model="activeTab === 'login' ? loginSearchForm : opSearchForm"
+                    inline
+                    class="search-form"
+                >
+                    <template v-if="activeTab === 'login'">
                         <el-form-item :label="$t('system.admin.username')">
                             <el-input
                                 v-model="loginSearchForm.keyword"
@@ -36,77 +58,17 @@
                         </el-form-item>
                         <el-form-item>
                             <el-button type="primary" @click="loginHandleSearch">
-                                <el-icon><Search /></el-icon>
+                                <i class="i-svg:search" />
                                 {{ $t('common.search') }}
                             </el-button>
                             <el-button @click="loginResetSearch">
-                                <el-icon><Refresh /></el-icon>
+                                <i class="i-svg:refresh-cw" />
                                 {{ $t('common.reset') }}
                             </el-button>
                         </el-form-item>
-                    </el-form>
-                </el-card>
+                    </template>
 
-                <el-card class="table-card" shadow="never">
-                    <div class="table-header">
-                        <div class="table-title">{{ $t('system.log.loginLog') }}</div>
-                    </div>
-
-                    <el-table v-loading="loginLoading" :data="loginList" stripe>
-                        <el-table-column :label="$t('common.id')" prop="id" width="80" />
-                        <el-table-column
-                            :label="$t('system.admin.username')"
-                            prop="username"
-                            width="120"
-                        />
-                        <el-table-column :label="$t('system.log.loginIp')" prop="ip" width="140" />
-                        <el-table-column
-                            :label="$t('system.log.browser')"
-                            prop="browser"
-                            width="160"
-                            show-overflow-tooltip
-                        />
-                        <el-table-column :label="$t('system.log.os')" prop="os" width="130" />
-                        <el-table-column :label="$t('system.log.result')" width="100">
-                            <template #default="{ row }">
-                                <el-tag
-                                    :type="row.login_result ? 'success' : 'danger'"
-                                    size="small"
-                                >
-                                    {{ row.login_result ? $t('common.yes') : $t('common.no') }}
-                                </el-tag>
-                            </template>
-                        </el-table-column>
-                        <el-table-column
-                            :label="$t('common.remark')"
-                            prop="login_message"
-                            min-width="160"
-                            show-overflow-tooltip
-                        />
-                        <el-table-column
-                            :label="$t('system.log.loginTime')"
-                            prop="login_time"
-                            width="170"
-                        />
-                    </el-table>
-
-                    <el-pagination
-                        v-model:current-page="loginPagination.page"
-                        v-model:page-size="loginPagination.limit"
-                        :total="loginPagination.total"
-                        :page-sizes="[10, 20, 50, 100]"
-                        layout="total, sizes, prev, pager, next, jumper"
-                        class="pagination"
-                        @size-change="loginHandleSizeChange"
-                        @current-change="loginHandlePageChange"
-                    />
-                </el-card>
-            </el-tab-pane>
-
-            <!-- 操作日志 -->
-            <el-tab-pane :label="$t('system.log.operationLog')" name="operation">
-                <el-card class="search-card" shadow="never">
-                    <el-form :model="opSearchForm" inline class="search-form">
+                    <template v-else>
                         <el-form-item :label="$t('common.search')">
                             <el-input
                                 v-model="opSearchForm.keyword"
@@ -131,100 +93,58 @@
                         </el-form-item>
                         <el-form-item>
                             <el-button type="primary" @click="opHandleSearch">
-                                <el-icon><Search /></el-icon>
+                                <i class="i-svg:search" />
                                 {{ $t('common.search') }}
                             </el-button>
                             <el-button @click="opResetSearch">
-                                <el-icon><Refresh /></el-icon>
+                                <i class="i-svg:refresh-cw" />
                                 {{ $t('common.reset') }}
                             </el-button>
                         </el-form-item>
-                    </el-form>
-                </el-card>
+                    </template>
+                </el-form>
+            </div>
+        </el-card>
 
-                <el-card class="table-card" shadow="never">
-                    <div class="table-header">
-                        <div class="table-title">{{ $t('system.log.operationLog') }}</div>
-                    </div>
-
-                    <el-table v-loading="opLoading" :data="opList" stripe>
-                        <el-table-column :label="$t('common.id')" prop="id" width="80" />
-                        <el-table-column
-                            :label="$t('system.log.operator')"
-                            prop="username"
-                            width="120"
-                        />
-                        <el-table-column :label="$t('system.log.method')" width="100">
-                            <template #default="{ row }">
-                                <el-tag
-                                    :type="methodTagType(row.method)"
-                                    size="small"
-                                    effect="light"
-                                >
-                                    {{ row.method }}
-                                </el-tag>
-                            </template>
-                        </el-table-column>
-                        <el-table-column
-                            :label="$t('system.log.url')"
-                            prop="path"
-                            min-width="200"
-                            show-overflow-tooltip
-                        />
-                        <el-table-column
-                            :label="$t('system.log.action')"
-                            prop="action"
-                            width="120"
-                        />
-                        <el-table-column
-                            :label="$t('common.description')"
-                            prop="description"
-                            min-width="160"
-                            show-overflow-tooltip
-                        />
-                        <el-table-column label="IP" prop="ip" width="140" />
-                        <el-table-column :label="$t('system.log.duration')" width="100">
-                            <template #default="{ row }">
-                                {{
-                                    row.execution_time
-                                        ? (row.execution_time * 1000).toFixed(0)
-                                        : '-'
-                                }}
-                            </template>
-                        </el-table-column>
-                        <el-table-column
-                            :label="$t('system.log.operationTime')"
-                            prop="operation_time"
-                            width="170"
-                        />
-                    </el-table>
-
-                    <el-pagination
-                        v-model:current-page="opPagination.page"
-                        v-model:page-size="opPagination.limit"
-                        :total="opPagination.total"
-                        :page-sizes="[10, 20, 50, 100]"
-                        layout="total, sizes, prev, pager, next, jumper"
-                        class="pagination"
-                        @size-change="opHandleSizeChange"
-                        @current-change="opHandlePageChange"
-                    />
-                </el-card>
-            </el-tab-pane>
-        </el-tabs>
+        <ProTable
+            :title="tableTitle"
+            :storage-key="tableStorageKey"
+            :columns="tableColumns"
+            :data="tableData"
+            :loading="tableLoading"
+            :pagination="tablePagination"
+            @page-change="handlePageChange"
+            @size-change="handleSizeChange"
+        >
+            <template #login_result="{ row }">
+                <el-tag :type="row.login_result ? 'success' : 'danger'" size="small">
+                    {{ row.login_result ? $t('common.yes') : $t('common.no') }}
+                </el-tag>
+            </template>
+            <template #method="{ row }">
+                <el-tag :type="methodTagType(row.method)" size="small" effect="light">
+                    {{ row.method }}
+                </el-tag>
+            </template>
+            <template #execution_time="{ row }">
+                {{ row.execution_time ? (row.execution_time * 1000).toFixed(0) : '-' }}
+            </template>
+        </ProTable>
     </div>
 </template>
 
 <script setup lang="ts" name="PlatformLog">
-import { Refresh, Search } from '@element-plus/icons-vue'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import { platformLogApi } from '@/api/system'
+import ProTable from '@/components/ProTable/index.vue'
+import type { ProColumn } from '@/components/ProTable/types'
 import { useListPage } from '@/hooks/useListPage'
 
-const activeTab = ref('login')
+const { t } = useI18n()
+const activeTab = ref<'login' | 'operation'>('login')
 
-// ===== 登录日志 =====
 const {
     list: loginList,
     loading: loginLoading,
@@ -239,7 +159,29 @@ const {
     defaultSearchForm: { keyword: '', ip: '', login_result: undefined }
 })
 
-// ===== 操作日志 =====
+const loginColumns: ProColumn[] = [
+    { key: 'id', label: t('common.id'), prop: 'id', width: 80, required: true },
+    { key: 'username', label: t('system.admin.username'), prop: 'username', width: 120 },
+    { key: 'ip', label: t('system.log.loginIp'), prop: 'ip', width: 140 },
+    {
+        key: 'browser',
+        label: t('system.log.browser'),
+        prop: 'browser',
+        width: 160,
+        showOverflowTooltip: true
+    },
+    { key: 'os', label: t('system.log.os'), prop: 'os', width: 130 },
+    { key: 'login_result', label: t('system.log.result'), width: 110 },
+    {
+        key: 'login_message',
+        label: t('common.remark'),
+        prop: 'login_message',
+        minWidth: 160,
+        showOverflowTooltip: true
+    },
+    { key: 'login_time', label: t('system.log.loginTime'), prop: 'login_time', width: 180 }
+]
+
 const {
     list: opList,
     loading: opLoading,
@@ -256,14 +198,63 @@ const {
     immediate: false
 })
 
-// 切换到操作日志 tab 时懒加载
+const opColumns: ProColumn[] = [
+    { key: 'id', label: t('common.id'), prop: 'id', width: 80, required: true },
+    { key: 'username', label: t('system.log.operator'), prop: 'username', width: 120 },
+    { key: 'method', label: t('system.log.method'), width: 110 },
+    {
+        key: 'path',
+        label: t('system.log.url'),
+        prop: 'path',
+        minWidth: 200,
+        showOverflowTooltip: true
+    },
+    { key: 'action', label: t('system.log.action'), prop: 'action', width: 120, required: true },
+    {
+        key: 'description',
+        label: t('common.description'),
+        prop: 'description',
+        minWidth: 160,
+        showOverflowTooltip: true
+    },
+    { key: 'ip', label: 'IP', prop: 'ip', width: 140 },
+    { key: 'execution_time', label: t('system.log.duration'), width: 120 },
+    { key: 'operation_time', label: t('system.log.operationTime'), prop: 'operation_time', width: 180 }
+]
+
+const tableTitle = computed(() =>
+    activeTab.value === 'login' ? t('system.log.loginLog') : t('system.log.operationLog')
+)
+const tableStorageKey = computed(() =>
+    activeTab.value === 'login' ? 'platform-login-log-list' : 'platform-operation-log-list'
+)
+const tableColumns = computed(() =>
+    activeTab.value === 'login' ? loginColumns : opColumns
+)
+const tableData = computed(() => (activeTab.value === 'login' ? loginList.value : opList.value))
+const tableLoading = computed(() =>
+    activeTab.value === 'login' ? loginLoading.value : opLoading.value
+)
+const tablePagination = computed(() =>
+    activeTab.value === 'login' ? loginPagination : opPagination
+)
+
+const handlePageChange = (page: number) => {
+    if (activeTab.value === 'login') loginHandlePageChange(page)
+    else opHandlePageChange(page)
+}
+
+const handleSizeChange = (size: number) => {
+    if (activeTab.value === 'login') loginHandleSizeChange(size)
+    else opHandleSizeChange(size)
+}
+
 watch(activeTab, (tab) => {
     if (tab === 'operation' && opList.value.length === 0) {
         opGetList()
     }
 })
 
-// 请求方法标签样式
 const methodTagType = (method: string) => {
     const map: Record<string, string> = {
         GET: 'success',
@@ -274,39 +265,3 @@ const methodTagType = (method: string) => {
     return (map[method] || 'info') as any
 }
 </script>
-
-<style lang="scss" scoped>
-.log-container {
-    .log-tabs {
-        :deep(.el-tabs__header) {
-            margin-bottom: 0;
-        }
-
-        :deep(.el-tabs__content) {
-            padding-top: 16px;
-        }
-    }
-
-    .search-card {
-        margin-bottom: 16px;
-    }
-
-    .table-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 16px;
-
-        .table-title {
-            font-size: 16px;
-            font-weight: 600;
-        }
-    }
-
-    .pagination {
-        margin-top: 16px;
-        display: flex;
-        justify-content: flex-end;
-    }
-}
-</style>

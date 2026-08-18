@@ -1,5 +1,12 @@
 <template>
     <div class="generator-page">
+        <div class="page-head">
+            <div>
+                <div class="page-title">{{ $t('generator.title') }}</div>
+                <div class="page-desc">{{ $t('generator.desc') }}</div>
+            </div>
+        </div>
+
         <el-steps :active="step" finish-status="success" class="mb-6">
             <el-step :title="$t('generator.step1')" />
             <el-step :title="$t('generator.step2')" />
@@ -7,49 +14,46 @@
         </el-steps>
 
         <!-- Step 1: 选择数据表 -->
-        <el-card v-if="step === 0" shadow="never">
-            <template #header>{{ $t('generator.step1') }}</template>
-            <el-input
-                v-model="tableSearch"
-                :placeholder="$t('generator.searchTable')"
-                :prefix-icon="Search"
-                clearable
-                class="mb-4"
-                style="width: 300px"
-            />
-            <el-table
-                v-loading="tableLoading"
+        <template v-if="step === 0">
+            <el-card class="search-card" shadow="never">
+                <el-form inline class="search-form">
+                    <el-form-item>
+                        <el-input
+                            v-model="tableSearch"
+                            :placeholder="$t('generator.searchTable')"
+                            clearable
+                            style="width: 300px"
+                        >
+                            <template #prefix><i class="i-svg:search" /></template>
+                        </el-input>
+                    </el-form-item>
+                </el-form>
+            </el-card>
+            <ProTable
+                :title="$t('generator.step1')"
+                storage-key="generator-tables"
+                row-key="name"
+                :columns="tableColumns"
                 :data="filteredTables"
+                :loading="tableLoading"
+                :pagination="tablePagination"
+                :show-pagination="false"
                 highlight-current-row
-                border
-                size="small"
-                max-height="500"
                 @current-change="handleTableSelect"
-            >
-                <el-table-column prop="name" :label="$t('generator.tableName')" min-width="200" />
-                <el-table-column
-                    prop="comment"
-                    :label="$t('generator.tableComment')"
-                    min-width="200"
-                />
-                <el-table-column prop="engine" :label="$t('generator.engine')" width="100" />
-                <el-table-column
-                    prop="rows"
-                    :label="$t('generator.rows')"
-                    width="80"
-                    align="center"
-                />
-            </el-table>
+            />
             <div class="mt-4 flex justify-end">
                 <el-button type="primary" :disabled="!selectedTable" @click="goStep2">{{
                     $t('generator.nextStep')
                 }}</el-button>
             </div>
-        </el-card>
+        </template>
 
         <!-- Step 2: 配置 -->
-        <el-card v-if="step === 1" shadow="never">
-            <template #header>{{ $t('generator.basicConfig') }} — {{ selectedTable }}</template>
+        <div v-if="step === 1" class="set-card">
+            <div class="set-card-head">
+                <h3>{{ $t('generator.basicConfig') }} — {{ selectedTable }}</h3>
+            </div>
+            <div class="set-card-body">
             <el-form label-width="120px" class="mb-6">
                 <el-row :gutter="24">
                     <el-col :span="8">
@@ -140,11 +144,15 @@
                     $t('generator.previewCode')
                 }}</el-button>
             </div>
-        </el-card>
+            </div>
+        </div>
 
         <!-- Step 3: 预览 & 生成 -->
-        <el-card v-if="step === 2" shadow="never">
-            <template #header>{{ $t('generator.previewTitle') }}</template>
+        <div v-if="step === 2" class="set-card">
+            <div class="set-card-head">
+                <h3>{{ $t('generator.previewTitle') }}</h3>
+            </div>
+            <div class="set-card-body">
             <el-tabs v-model="activeTab">
                 <el-tab-pane
                     v-for="(file, key) in previewFiles"
@@ -164,7 +172,8 @@
                     $t('generator.confirmGenerate')
                 }}</el-button>
             </div>
-        </el-card>
+            </div>
+        </div>
 
         <!-- 生成结果 -->
         <el-dialog v-model="showResult" class="dialog-md" :title="$t('generator.resultTitle')">
@@ -201,12 +210,13 @@
 </template>
 
 <script setup lang="ts">
-import { Search } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { generatorApi } from '@/api/generator'
+import ProTable from '@/components/ProTable/index.vue'
+import type { ProColumn } from '@/components/ProTable/types'
 
 const { t } = useI18n()
 
@@ -239,6 +249,19 @@ const filteredTables = computed(() => {
             item.name.toLowerCase().includes(kw) || (item.comment || '').toLowerCase().includes(kw)
     )
 })
+
+const tableColumns = computed<ProColumn[]>(() => [
+    { key: 'name', label: t('generator.tableName'), minWidth: 200, required: true },
+    { key: 'comment', label: t('generator.tableComment'), minWidth: 200 },
+    { key: 'engine', label: t('generator.engine'), width: 100 },
+    { key: 'rows', label: t('generator.rows'), width: 80, align: 'center' }
+])
+
+const tablePagination = computed(() => ({
+    page: 1,
+    limit: filteredTables.value.length || 20,
+    total: filteredTables.value.length
+}))
 
 const fetchTables = async () => {
     tableLoading.value = true

@@ -1,5 +1,21 @@
 <template>
     <div class="mobile-build-container">
+        <div class="page-head">
+            <div>
+                <div class="page-title">{{ $t('mobileBuild.title') }}</div>
+                <div class="page-desc">{{ $t('mobileBuild.desc') }}</div>
+            </div>
+            <div class="page-actions">
+                <el-button
+                    v-perms="'platform.mobile.build.manage'"
+                    type="warning"
+                    @click="handleForceFail"
+                >
+                    {{ $t('mobileBuild.forceFail') }}
+                </el-button>
+            </div>
+        </div>
+
         <!-- 搜索区域 -->
         <el-card class="search-card" shadow="never">
             <el-form :model="searchForm" inline class="search-form">
@@ -40,95 +56,52 @@
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="handleSearch">
-                        <el-icon><Search /></el-icon>
+                        <i class="i-svg:search" />
                         {{ $t('common.search') }}
                     </el-button>
                     <el-button @click="resetSearch">
-                        <el-icon><Refresh /></el-icon>
+                        <i class="i-svg:refresh-cw" />
                         {{ $t('common.reset') }}
                     </el-button>
                 </el-form-item>
             </el-form>
         </el-card>
 
-        <!-- 列表区域 -->
-        <el-card class="table-card" shadow="never">
-            <div class="table-header">
-                <div class="table-title">{{ $t('mobileBuild.title') }}</div>
-                <el-button
-                    v-perms="'platform.mobile.build.manage'"
-                    type="warning"
-                    @click="handleForceFail"
-                >
-                    {{ $t('mobileBuild.forceFail') }}
-                </el-button>
-            </div>
-
-            <el-table v-loading="loading" :data="list" stripe>
-                <el-table-column label="ID" prop="id" width="80" />
-                <el-table-column :label="$t('order.tenantId')" prop="tenant_id" width="90" />
-                <el-table-column
-                    :label="$t('mobileBuild.buildNo')"
-                    prop="build_no"
-                    min-width="170"
-                    show-overflow-tooltip
-                />
-                <el-table-column :label="$t('mobileBuild.platform')" width="110">
-                    <template #default="{ row }">
-                        <el-tag size="small" effect="light">{{ row.platform }}</el-tag>
-                    </template>
-                </el-table-column>
-                <el-table-column label="Driver" prop="driver" width="90" />
-                <el-table-column :label="$t('common.status')" width="110" align="center">
-                    <template #default="{ row }">
-                        <el-tag :type="statusTagType(row.status)" size="small">
-                            {{ statusOptions[row.status] || row.status }}
-                        </el-tag>
-                    </template>
-                </el-table-column>
-                <el-table-column
-                    :label="$t('mobileBuild.errorLog')"
-                    prop="error_log"
-                    min-width="180"
-                    show-overflow-tooltip
-                >
-                    <template #default="{ row }">
-                        {{ row.error_log || '—' }}
-                    </template>
-                </el-table-column>
-                <el-table-column :label="$t('mobileBuild.startedAt')" prop="started_at" width="170">
-                    <template #default="{ row }">{{ row.started_at || '—' }}</template>
-                </el-table-column>
-                <el-table-column
-                    :label="$t('mobileBuild.finishedAt')"
-                    prop="finished_at"
-                    width="170"
-                >
-                    <template #default="{ row }">{{ row.finished_at || '—' }}</template>
-                </el-table-column>
-            </el-table>
-
-            <el-pagination
-                v-model:current-page="pagination.page"
-                v-model:page-size="pagination.limit"
-                :total="pagination.total"
-                :page-sizes="[10, 20, 50, 100]"
-                layout="total, sizes, prev, pager, next, jumper"
-                class="pagination"
-                @size-change="handleSizeChange"
-                @current-change="handlePageChange"
-            />
-        </el-card>
+        <ProTable
+            :title="$t('mobileBuild.title')"
+            storage-key="platform-mobile-build-list"
+            :columns="columns"
+            :data="list"
+            :loading="loading"
+            :pagination="pagination"
+            @page-change="handlePageChange"
+            @size-change="handleSizeChange"
+        >
+            <template #platform="{ row }">
+                <el-tag size="small" effect="light">{{ row.platform }}</el-tag>
+            </template>
+            <template #status="{ row }">
+                <el-tag :type="statusTagType(row.status)" size="small">
+                    {{ statusOptions[row.status] || row.status }}
+                </el-tag>
+            </template>
+            <template #error_log="{ row }">
+                {{ row.error_log || '—' }}
+            </template>
+            <template #started_at="{ row }">{{ row.started_at || '—' }}</template>
+            <template #finished_at="{ row }">{{ row.finished_at || '—' }}</template>
+        </ProTable>
     </div>
 </template>
 
 <script setup lang="ts" name="PlatformMobileBuildList">
-import { Refresh, Search } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { mobileBuildApi, type MobileBuildInfo } from '@/api/mobile-build'
+import ProTable from '@/components/ProTable/index.vue'
+import type { ProColumn } from '@/components/ProTable/types'
 import { useListPage } from '@/hooks/useListPage'
 
 const { t } = useI18n()
@@ -156,6 +129,30 @@ const {
         status: ''
     }
 })
+
+const columns: ProColumn[] = [
+    { key: 'id', label: 'ID', prop: 'id', width: 80, required: true },
+    { key: 'tenant_id', label: t('order.tenantId'), prop: 'tenant_id', width: 90 },
+    {
+        key: 'build_no',
+        label: t('mobileBuild.buildNo'),
+        prop: 'build_no',
+        minWidth: 170,
+        showOverflowTooltip: true
+    },
+    { key: 'platform', label: t('mobileBuild.platform'), width: 110 },
+    { key: 'driver', label: 'Driver', prop: 'driver', width: 90 },
+    { key: 'status', label: t('common.status'), width: 110, align: 'center' },
+    {
+        key: 'error_log',
+        label: t('mobileBuild.errorLog'),
+        prop: 'error_log',
+        minWidth: 180,
+        showOverflowTooltip: true
+    },
+    { key: 'started_at', label: t('mobileBuild.startedAt'), prop: 'started_at', width: 170 },
+    { key: 'finished_at', label: t('mobileBuild.finishedAt'), prop: 'finished_at', width: 170 }
+]
 
 const statusOptions = computed<Record<number, string>>(() => ({
     0: t('mobileBuild.queued'),
@@ -202,30 +199,3 @@ async function handleForceFail() {
 }
 </script>
 
-<style lang="scss" scoped>
-.mobile-build-container {
-    padding: 16px;
-
-    .search-card {
-        margin-bottom: 16px;
-    }
-
-    .table-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 16px;
-
-        .table-title {
-            font-size: 16px;
-            font-weight: 600;
-        }
-    }
-
-    .pagination {
-        margin-top: 16px;
-        display: flex;
-        justify-content: flex-end;
-    }
-}
-</style>

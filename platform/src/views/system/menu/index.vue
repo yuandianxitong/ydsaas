@@ -1,149 +1,240 @@
 <template>
     <div class="menu-container">
-        <!-- 搜索区域 -->
-        <el-card class="search-card" shadow="never">
-            <el-form :model="searchForm" inline class="search-form">
-                <el-form-item :label="$t('system.menu.menuName')">
+        <div class="page-head">
+            <div>
+                <div class="page-title">{{ $t('system.menu.title') }}</div>
+                <div class="page-desc">{{ $t('system.menu.desc') }}</div>
+            </div>
+            <div class="page-actions">
+                <el-button @click="expandAllNodes">
+                    {{ isExpandAll ? $t('common.collapseAll') : $t('common.expandAll') }}
+                </el-button>
+                <el-button type="primary" @click="handleAdd()">
+                    <i class="i-svg:plus" />
+                    {{ $t('system.menu.addMenu') }}
+                </el-button>
+            </div>
+        </div>
+
+        <div class="split">
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-title">{{ $t('system.menu.menuStructure') }}</div>
+                    <el-button size="small" text type="primary" @click="handleAdd()">
+                        <i class="i-svg:plus" />
+                        {{ $t('common.add') }}
+                    </el-button>
+                </div>
+                <div class="tree-search">
                     <el-input
-                        v-model="searchForm.title"
+                        v-model="treeFilter"
                         :placeholder="$t('system.menu.searchPlaceholder')"
                         clearable
-                        style="width: 200px"
-                    />
-                </el-form-item>
-                <el-form-item :label="$t('common.status')">
-                    <el-select
-                        v-model="searchForm.status"
-                        :placeholder="$t('common.all')"
-                        clearable
-                        style="width: 120px"
                     >
-                        <el-option :label="$t('common.enable')" :value="1" />
-                        <el-option :label="$t('common.disable')" :value="0" />
-                    </el-select>
-                </el-form-item>
-                <el-form-item :label="$t('common.type')">
-                    <el-select
-                        v-model="searchForm.type"
-                        :placeholder="$t('common.all')"
-                        clearable
-                        style="width: 120px"
-                    >
-                        <el-option :label="$t('system.menu.directory')" :value="1" />
-                        <el-option :label="$t('system.menu.menu')" :value="2" />
-                        <el-option :label="$t('system.menu.button')" :value="3" />
-                    </el-select>
-                </el-form-item>
-                <el-form-item>
-                    <el-button type="primary" @click="getMenuList">
-                        <el-icon><Search /></el-icon>
-                        {{ $t('common.search') }}
-                    </el-button>
-                    <el-button @click="resetSearch">
-                        <el-icon><Refresh /></el-icon>
-                        {{ $t('common.reset') }}
-                    </el-button>
-                </el-form-item>
-            </el-form>
-        </el-card>
-
-        <!-- 操作区域 -->
-        <el-card class="table-card" shadow="never">
-            <div class="table-header">
-                <div class="table-title">{{ $t('system.menu.title') }}</div>
-                <div class="table-actions">
-                    <el-button @click="expandAll">
-                        {{ isExpandAll ? $t('common.collapseAll') : $t('common.expandAll') }}
-                    </el-button>
-                    <el-button type="primary" @click="handleAdd()">
-                        <el-icon><Plus /></el-icon>
-                        {{ $t('system.menu.addMenu') }}
-                    </el-button>
+                        <template #prefix><i class="i-svg:search" /></template>
+                    </el-input>
+                </div>
+                <div v-loading="loading" class="tree">
+                    <template v-for="node in filteredMenuList" :key="node.id">
+                        <MenuTreeNode
+                            :node="node"
+                            :depth="0"
+                            :selected-id="selectedMenuId"
+                            :open-map="openMap"
+                            @select="handleTreeSelect"
+                            @toggle="handleTreeToggle"
+                        />
+                    </template>
                 </div>
             </div>
 
-            <!-- 树形表格 -->
-            <el-table
-                :key="tableKey"
-                v-loading="loading"
-                :data="menuList"
-                row-key="id"
-                :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
-                :default-expand-all="isExpandAll"
-                stripe
-            >
-                <el-table-column :label="$t('system.menu.menuName')" prop="title" min-width="200">
-                    <template #default="{ row }">
-                        <span>{{ row.title }}</span>
-                        <span v-if="row.permission" class="permission-text">{{
-                            row.permission
-                        }}</span>
-                    </template>
-                </el-table-column>
-
-                <el-table-column :label="$t('common.type')" prop="type" width="90">
-                    <template #default="{ row }">
-                        <el-tag :type="getTypeTagType(row.type)" size="small">
-                            {{ getTypeText(row.type) }}
-                        </el-tag>
-                    </template>
-                </el-table-column>
-
-                <el-table-column
-                    :label="$t('system.menu.routePath')"
-                    prop="path"
-                    width="200"
-                    show-overflow-tooltip
-                />
-
-                <el-table-column
-                    :label="$t('system.menu.component')"
-                    prop="component"
-                    width="200"
-                    show-overflow-tooltip
-                />
-
-                <el-table-column :label="$t('common.sort')" prop="sort" width="80" align="center" />
-
-                <el-table-column :label="$t('common.status')" width="100" align="center">
-                    <template #default="{ row }">
-                        <el-switch
-                            v-model="row.status"
-                            :active-value="1"
-                            :inactive-value="0"
-                            @change="handleStatusChange(row)"
-                        />
-                    </template>
-                </el-table-column>
-
-                <el-table-column :label="$t('common.createdAt')" prop="created_at" width="180" />
-
-                <el-table-column :label="$t('common.operation')" width="200" fixed="right">
-                    <template #default="{ row }">
-                        <el-button type="primary" size="small" text @click="handleAdd(row)">
-                            {{ $t('common.add') }}
-                        </el-button>
-                        <el-button type="primary" size="small" text @click="handleEdit(row)">
-                            {{ $t('common.edit') }}
-                        </el-button>
-                        <el-popconfirm
-                            :title="$t('system.menu.deleteConfirm')"
-                            :confirm-button-text="$t('common.confirm')"
-                            :cancel-button-text="$t('common.cancel')"
-                            @confirm="handleDelete(row)"
+            <div class="panel">
+                <template v-if="selectedMenu">
+                    <div class="panel-head">
+                        <div class="panel-title">{{ $t('system.menu.menuDetail') }}</div>
+                        <div style="display: flex; gap: 6px">
+                            <el-button size="small" @click="handleAdd(selectedMenu)">
+                                {{ $t('system.menu.addChildMenu') }}
+                            </el-button>
+                            <el-button size="small" type="danger" @click="handleDelete(selectedMenu)">
+                                {{ $t('common.delete') }}
+                            </el-button>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <el-form
+                            ref="editFormRef"
+                            :model="editForm"
+                            :rules="editRules"
+                            label-position="top"
                         >
-                            <template #reference>
-                                <el-button type="danger" size="small" text>{{
-                                    $t('common.delete')
-                                }}</el-button>
-                            </template>
-                        </el-popconfirm>
-                    </template>
-                </el-table-column>
-            </el-table>
-        </el-card>
+                            <div class="form-sec-title">{{ $t('system.menu.basicInfo') }}</div>
+                            <div class="form-grid">
+                                <div class="form-row">
+                                    <div class="form-label">
+                                        {{ $t('system.menu.menuType') }}<span class="req">*</span>
+                                    </div>
+                                    <el-radio-group
+                                        v-model="editForm.type"
+                                        @change="handleEditTypeChange"
+                                    >
+                                        <el-radio :value="1">{{
+                                            $t('system.menu.directory')
+                                        }}</el-radio>
+                                        <el-radio :value="2">{{ $t('system.menu.menu') }}</el-radio>
+                                        <el-radio :value="3">{{
+                                            $t('system.menu.button')
+                                        }}</el-radio>
+                                    </el-radio-group>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-label">
+                                        {{ $t('system.menu.parentMenu') }}<span class="req">*</span>
+                                    </div>
+                                    <el-tree-select
+                                        v-model="editForm.parent_id"
+                                        :data="editParentTreeData"
+                                        node-key="id"
+                                        :props="{ label: 'title', children: 'children' }"
+                                        :placeholder="$t('system.menu.parentMenuPlaceholder')"
+                                        check-strictly
+                                        clearable
+                                        default-expand-all
+                                        style="width: 100%"
+                                    />
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-label">
+                                        {{ $t('system.menu.menuName') }}<span class="req">*</span>
+                                    </div>
+                                    <el-input
+                                        v-model="editForm.title"
+                                        :placeholder="$t('system.menu.namePlaceholder')"
+                                    />
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-label">{{ $t('system.menu.permission') }}</div>
+                                    <el-input
+                                        v-model="editForm.permission"
+                                        :placeholder="$t('system.menu.permPlaceholder')"
+                                    />
+                                </div>
+                                <div v-if="editForm.type !== 3" class="form-row">
+                                    <div class="form-label">
+                                        {{ $t('system.menu.routePath') }}<span class="req">*</span>
+                                    </div>
+                                    <el-input
+                                        v-model="editForm.path"
+                                        :placeholder="$t('system.menu.routePathPlaceholder')"
+                                    />
+                                </div>
+                                <div v-if="editForm.type === 2" class="form-row">
+                                    <div class="form-label">{{ $t('system.menu.component') }}</div>
+                                    <el-input
+                                        v-model="editForm.component"
+                                        :placeholder="$t('system.menu.componentPlaceholder')"
+                                    >
+                                        <template #prepend>src/views/</template>
+                                        <template #append>.vue</template>
+                                    </el-input>
+                                </div>
+                                <div v-if="editForm.type !== 3" class="form-row">
+                                    <div class="form-label">{{ $t('system.menu.routeName') }}</div>
+                                    <el-input
+                                        v-model="editForm.name"
+                                        :placeholder="$t('system.menu.routeNamePlaceholder')"
+                                    />
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-label">{{ $t('common.sort') }}</div>
+                                    <el-input-number
+                                        v-model="editForm.sort"
+                                        :min="0"
+                                        :max="9999"
+                                        controls-position="right"
+                                        style="width: 100%"
+                                    />
+                                </div>
+                                <div v-if="editForm.type !== 3" class="form-row">
+                                    <div class="form-label">{{ $t('system.menu.iframe') }}</div>
+                                    <el-input
+                                        v-model="editMetaForm.iframe"
+                                        :placeholder="$t('system.menu.iframe')"
+                                    />
+                                </div>
+                            </div>
 
-        <!-- 新增/编辑弹窗 -->
+                            <div class="form-sec-title" style="margin-top: 22px">
+                                {{ $t('system.menu.displayBehavior') }}
+                            </div>
+                            <div class="form-grid">
+                                <div v-if="editForm.type !== 3" class="form-row">
+                                    <div class="form-label">{{ $t('system.menu.icon') }}</div>
+                                    <IconSelect v-model="editForm.icon" width="100%" />
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-label">{{ $t('common.status') }}</div>
+                                    <div class="meta-hint">
+                                        <el-switch
+                                            v-model="editForm.status"
+                                            :active-value="1"
+                                            :inactive-value="0"
+                                        />
+                                        <span>{{ $t('system.menu.hiddenTip') }}</span>
+                                    </div>
+                                </div>
+                                <div v-if="editForm.type !== 3" class="form-row">
+                                    <div class="form-label">{{ $t('system.menu.cache') }}</div>
+                                    <div class="meta-hint">
+                                        <el-switch v-model="editMetaForm.cache" />
+                                        <span>{{ $t('system.menu.cacheTip') }}</span>
+                                    </div>
+                                </div>
+                                <div v-if="editForm.type !== 3" class="form-row">
+                                    <div class="form-label">{{ $t('system.menu.affix') }}</div>
+                                    <div class="meta-hint">
+                                        <el-switch v-model="editMetaForm.affix" />
+                                        <span>{{ $t('system.menu.affixTip') }}</span>
+                                    </div>
+                                </div>
+                                <div v-if="editForm.type !== 3" class="form-row">
+                                    <div class="form-label">{{ $t('system.menu.hidden') }}</div>
+                                    <div class="meta-hint">
+                                        <el-switch v-model="editMetaForm.hidden" />
+                                        <span>{{ $t('system.menu.hiddenFromNavTip') }}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-foot">
+                                <el-button @click="handleEditCancel">{{
+                                    $t('common.cancel')
+                                }}</el-button>
+                                <el-button @click="handleEditReset">{{
+                                    $t('common.reset')
+                                }}</el-button>
+                                <el-button
+                                    type="primary"
+                                    :loading="submitting"
+                                    @click="handleEditSave"
+                                >
+                                    {{ $t('system.menu.saveChanges') }}
+                                </el-button>
+                            </div>
+                        </el-form>
+                    </div>
+                </template>
+                <template v-else>
+                    <div class="panel-head">
+                        <div class="panel-title">{{ $t('system.menu.menuDetail') }}</div>
+                    </div>
+                    <div class="panel-empty">
+                        {{ $t('system.menu.selectMenuTip') }}
+                    </div>
+                </template>
+            </div>
+        </div>
+
         <MenuForm
             v-model="formVisible"
             :form-data="formData"
@@ -154,51 +245,176 @@
 </template>
 
 <script setup lang="ts" name="PlatformMenuList">
-import { Plus, Refresh, Search } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
-import { nextTick, onMounted, reactive, ref } from 'vue'
+import type { FormInstance, FormRules } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { computed, nextTick, onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { platformMenuApi } from '@/api/system'
+import IconSelect from '@/components/IconSelect/index.vue'
+import type { MenuInfo, MenuMeta } from '@/types/api'
 
 import MenuForm from './components/MenuForm.vue'
+import MenuTreeNode from './components/MenuTreeNode.vue'
 
 const { t } = useI18n()
 
-// 搜索表单
-const searchForm = reactive({
-    title: '',
-    status: undefined as number | undefined,
-    type: undefined as number | undefined
-})
-
-// 列表数据
-const menuList = ref<any[]>([])
+const menuList = ref<MenuInfo[]>([])
 const loading = ref(false)
-
-// 展开/折叠
 const isExpandAll = ref(false)
-const tableKey = ref(0)
 
-// 弹窗相关
 const formVisible = ref(false)
 const formData = ref<Record<string, any>>({})
-const parentOptions = ref<Array<{ id: number; title: string }>>([])
+const parentOptions = ref<MenuInfo[]>([])
 
-// 获取菜单列表
+const treeFilter = ref('')
+const selectedMenuId = ref<number | null>(null)
+const openMap = ref<Record<number, boolean>>({})
+
+const editFormRef = ref<FormInstance>()
+const submitting = ref(false)
+
+interface EditFormData {
+    id?: number
+    parent_id: number
+    type: number
+    title: string
+    name: string
+    path: string
+    component: string
+    icon: string
+    permission: string
+    sort: number
+    status: number
+}
+
+const defaultEditForm: EditFormData = {
+    id: undefined,
+    parent_id: 0,
+    type: 1,
+    title: '',
+    name: '',
+    path: '',
+    component: '',
+    icon: '',
+    permission: '',
+    sort: 100,
+    status: 1
+}
+
+const editForm = reactive<EditFormData>({ ...defaultEditForm })
+
+const defaultMeta: MenuMeta = {
+    hidden: false,
+    cache: true,
+    affix: false,
+    badge: '',
+    iframe: ''
+}
+
+const editMetaForm = reactive<MenuMeta>({ ...defaultMeta })
+
+const editParentOptions = ref<MenuInfo[]>([])
+const editParentTreeData = computed(() => [
+    { id: 0, title: t('system.menu.rootMenu'), children: [] },
+    ...(editParentOptions.value || [])
+])
+
+const editRules = computed<FormRules>(() => ({
+    title: [{ required: true, message: t('system.menu.validate.nameRequired'), trigger: 'blur' }],
+    type: [{ required: true, message: t('system.menu.validate.typeRequired'), trigger: 'change' }],
+    path: [
+        {
+            trigger: 'blur',
+            validator: (_rule: any, value: string, callback: (error?: Error) => void) => {
+                if (editForm.type === 3) {
+                    callback()
+                    return
+                }
+                if (!value) {
+                    callback(new Error(t('system.menu.routePathPlaceholder')))
+                    return
+                }
+                callback()
+            }
+        }
+    ],
+    component: [
+        {
+            trigger: 'blur',
+            validator: (_rule: any, value: string, callback: (error?: Error) => void) => {
+                if (editForm.type !== 2) {
+                    callback()
+                    return
+                }
+                if (!value) {
+                    callback(new Error(t('system.menu.componentPlaceholder')))
+                    return
+                }
+                callback()
+            }
+        }
+    ]
+}))
+
+const selectedMenu = computed<MenuInfo | null>(() => {
+    if (selectedMenuId.value == null) return null
+    return findMenuById(menuList.value, selectedMenuId.value)
+})
+
+const filteredMenuList = computed(() => {
+    const keyword = treeFilter.value.trim().toLowerCase()
+    if (!keyword) return menuList.value
+    return filterTree(menuList.value, keyword)
+})
+
+function filterTree(list: MenuInfo[], keyword: string): MenuInfo[] {
+    const result: MenuInfo[] = []
+    for (const item of list) {
+        const titleMatch = item.title?.toLowerCase().includes(keyword)
+        const childMatches = item.children?.length ? filterTree(item.children, keyword) : []
+        if (titleMatch || childMatches.length > 0) {
+            result.push({
+                ...item,
+                children: titleMatch ? item.children : childMatches
+            })
+        }
+    }
+    return result
+}
+
+function findMenuById(list: MenuInfo[], id: number): MenuInfo | null {
+    for (const item of list) {
+        if (item.id === id) return item
+        if (item.children?.length) {
+            const found = findMenuById(item.children, id)
+            if (found) return found
+        }
+    }
+    return null
+}
+
 const getMenuList = async () => {
     loading.value = true
     try {
         const res = await platformMenuApi.list()
         menuList.value = res.data || []
-    } catch (error) {
+
+        if (selectedMenuId.value != null) {
+            const updated = findMenuById(menuList.value, selectedMenuId.value)
+            if (updated) {
+                syncEditForm(updated)
+            } else {
+                selectedMenuId.value = null
+            }
+        }
+    } catch {
         ElMessage.error(t('message.fetchFailed'))
     } finally {
         loading.value = false
     }
 }
 
-// 获取父级菜单选项
 const getParentOptions = async (excludeId?: number) => {
     try {
         const res = await platformMenuApi.options(excludeId)
@@ -208,30 +424,112 @@ const getParentOptions = async (excludeId?: number) => {
     }
 }
 
-// 重置搜索
-const resetSearch = () => {
-    Object.assign(searchForm, { title: '', status: undefined, type: undefined })
-    getMenuList()
-}
-
-// 展开/折叠所有
-const expandAll = () => {
-    isExpandAll.value = !isExpandAll.value
-    tableKey.value++
-}
-
-// 状态变更
-const handleStatusChange = async (row: any) => {
+const getEditParentOptions = async (excludeId?: number) => {
     try {
-        await platformMenuApi.updateStatus(row.id, row.status)
-        ElMessage.success(t('message.statusUpdateSuccess'))
+        const res = await platformMenuApi.options(excludeId)
+        editParentOptions.value = res.data || []
     } catch (error) {
-        row.status = row.status === 1 ? 0 : 1
+        console.error('获取编辑父级菜单选项失败:', error)
     }
 }
 
-// 新增菜单
-const handleAdd = (parent?: any) => {
+const expandAllNodes = () => {
+    isExpandAll.value = !isExpandAll.value
+    const newMap: Record<number, boolean> = {}
+    if (isExpandAll.value) {
+        const setAll = (list: MenuInfo[]) => {
+            for (const item of list) {
+                if (item.children?.length) {
+                    newMap[item.id] = true
+                    setAll(item.children)
+                }
+            }
+        }
+        setAll(menuList.value)
+    }
+    openMap.value = newMap
+}
+
+const handleTreeSelect = (node: MenuInfo) => {
+    selectedMenuId.value = node.id
+    syncEditForm(node)
+    getEditParentOptions(node.id)
+}
+
+const handleTreeToggle = (nodeId: number) => {
+    openMap.value = { ...openMap.value, [nodeId]: !openMap.value[nodeId] }
+}
+
+function syncEditForm(menu: MenuInfo) {
+    Object.assign(editForm, {
+        id: menu.id,
+        parent_id: menu.parent_id ?? 0,
+        type: menu.type,
+        title: menu.title,
+        name: menu.name || '',
+        path: menu.path || '',
+        component: menu.component || '',
+        icon: menu.icon || '',
+        permission: menu.permission || '',
+        sort: menu.sort ?? 100,
+        status: menu.status
+    })
+    if (menu.meta) {
+        Object.assign(editMetaForm, defaultMeta, menu.meta)
+    } else {
+        Object.assign(editMetaForm, defaultMeta)
+    }
+    nextTick(() => editFormRef.value?.clearValidate())
+}
+
+const handleEditTypeChange = () => {
+    if (editForm.type === 3) {
+        editForm.name = ''
+        editForm.path = ''
+        editForm.component = ''
+        editForm.icon = ''
+    }
+}
+
+const handleEditCancel = () => {
+    if (selectedMenu.value) {
+        syncEditForm(selectedMenu.value)
+    }
+}
+
+const handleEditReset = () => {
+    if (selectedMenu.value) {
+        syncEditForm(selectedMenu.value)
+    }
+}
+
+const handleEditSave = async () => {
+    if (!editFormRef.value) return
+    try {
+        await editFormRef.value.validate()
+    } catch {
+        return
+    }
+
+    if (!editForm.id) return
+
+    try {
+        submitting.value = true
+        const { id, ...payload } = editForm
+        await platformMenuApi.update(id, {
+            ...payload,
+            meta: payload.type !== 3 ? { ...editMetaForm } : undefined
+        })
+        ElMessage.success(t('message.updateSuccess'))
+        await getMenuList()
+    } catch {
+        ElMessage.error(t('common.error'))
+    } finally {
+        submitting.value = false
+    }
+}
+
+const handleAdd = (parent?: MenuInfo) => {
     formData.value = {
         parent_id: parent?.id || 0,
         status: 1,
@@ -242,42 +540,30 @@ const handleAdd = (parent?: any) => {
     formVisible.value = true
 }
 
-// 编辑菜单
-const handleEdit = (row: any) => {
-    formData.value = { ...row }
-    getParentOptions(row.id)
-    formVisible.value = true
-}
-
-// 删除菜单
-const handleDelete = async (row: any) => {
+const handleDelete = async (row: MenuInfo) => {
     try {
+        await ElMessageBox.confirm(
+            t('message.deleteConfirmName', { name: row.title }),
+            t('message.confirmDelete'),
+            {
+                confirmButtonText: t('common.confirm'),
+                cancelButtonText: t('common.cancel'),
+                type: 'warning'
+            }
+        )
+
         await platformMenuApi.destroy(row.id)
         ElMessage.success(t('message.deleteSuccess'))
+
+        if (selectedMenuId.value === row.id) {
+            selectedMenuId.value = null
+        }
         getMenuList()
     } catch (error) {
-        console.error('删除失败:', error)
+        if (error !== 'cancel') {
+            console.error('删除失败:', error)
+        }
     }
-}
-
-// 获取类型文本
-const getTypeText = (type: number) => {
-    const typeMap: Record<number, string> = {
-        1: t('system.menu.directory'),
-        2: t('system.menu.menu'),
-        3: t('system.menu.button')
-    }
-    return typeMap[type] || String(type)
-}
-
-// 获取类型标签样式
-const getTypeTagType = (type: number): 'primary' | 'success' | 'warning' | 'info' | 'danger' => {
-    const typeMap: Record<number, 'primary' | 'success' | 'warning' | 'info' | 'danger'> = {
-        1: 'info',
-        2: 'success',
-        3: 'warning'
-    }
-    return typeMap[type] || 'info'
 }
 
 onMounted(() => {
@@ -287,31 +573,31 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .menu-container {
-    .search-card {
-        margin-bottom: 16px;
+    .tree {
+        min-height: 200px;
+        max-height: calc(100vh - 260px);
+        overflow-y: auto;
     }
 
-    .table-header {
+    .panel-empty {
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        margin-bottom: 16px;
-
-        .table-title {
-            font-size: 16px;
-            font-weight: 600;
-        }
-
-        .table-actions {
-            display: flex;
-            gap: 8px;
-        }
+        justify-content: center;
+        min-height: 400px;
+        color: var(--ink-400);
+        font-size: 13px;
     }
 
-    .permission-text {
-        margin-left: 8px;
-        font-size: 12px;
-        color: var(--el-text-color-placeholder);
+    .meta-hint {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding-top: 6px;
+
+        span {
+            font-size: 12.5px;
+            color: var(--ink-500);
+        }
     }
 }
 </style>

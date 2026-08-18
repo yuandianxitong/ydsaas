@@ -1,7 +1,7 @@
 <template>
     <main class="main-wrap h-full">
         <el-scrollbar>
-            <div class="p-4">
+            <div class="main-content">
                 <router-view v-if="isRouteShow" v-slot="{ Component, route }">
                     <transition name="fade" mode="out-in">
                         <keep-alive :include="includeList" :max="20">
@@ -27,5 +27,13 @@ const settingStore = useSettingStore()
 const isRouteShow = computed(() => appStore.isRouteShow)
 
 // 需要缓存的组件列表
-const includeList = computed(() => (settingStore.openMultipleTabs ? tabsStore.getCacheTabList : []))
+    const includeList = computed(() => (settingStore.openMultipleTabs ? tabsStore.getCacheTabList : []))
 </script>
+
+<style lang="scss" scoped>
+.main-content {
+    padding: 20px;
+    background: var(--page-bg);
+    min-height: 100%;
+}
+</style>

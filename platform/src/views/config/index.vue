@@ -1,28 +1,55 @@
 <template>
     <div class="platform-config">
-        <el-card class="box-card">
-            <el-tabs v-model="activeTab" @tab-change="handleTabChange">
-                <el-tab-pane
+        <div class="page-head">
+            <div>
+                <div class="page-title">{{ $t('system.config.title') }}</div>
+                <div class="page-desc">{{ $t('system.config.desc') }}</div>
+            </div>
+            <div class="page-actions">
+                <el-button @click="handleReset">{{ $t('config.resetConfig') }}</el-button>
+                <el-button type="primary" :loading="loading" @click="handleSave">
+                    {{ $t('config.saveConfig') }}
+                </el-button>
+            </div>
+        </div>
+
+        <div class="set-split">
+            <div class="set-nav">
+                <div
                     v-for="(label, key) in configGroups"
                     :key="key"
-                    :label="label"
-                    :name="key"
+                    class="set-nav-item"
+                    :class="{ on: activeTab === key }"
+                    @click="switchTab(String(key))"
                 >
-                    <div class="config-form">
-                        <el-form
-                            ref="formRef"
-                            :model="formData"
-                            label-width="160px"
-                            label-position="left"
-                        >
-                            <template v-for="config in visibleConfigs" :key="config.id">
-                                <el-form-item :label="config.config_name" :prop="config.config_key">
-                                    <!-- select 下拉选择 -->
+                    <i class="ic" :class="navIconClass[String(key)] || 'i-svg:settings'" />
+                    <span>{{ label }}</span>
+                </div>
+            </div>
+
+            <div class="set-sections">
+                <div class="set-card">
+                    <div class="set-card-head">
+                        <h3>{{ configGroups[activeTab] || activeTab }}</h3>
+                    </div>
+                    <div class="set-card-body">
+                        <template v-for="config in visibleConfigs" :key="config.id">
+                            <div class="set-item">
+                                <div>
+                                    <div class="set-item-label">{{ config.config_name }}</div>
+                                    <div
+                                        v-if="config.config_desc && config.config_type !== 'file'"
+                                        class="set-item-desc"
+                                    >
+                                        {{ config.config_desc }}
+                                    </div>
+                                </div>
+                                <div class="set-item-ctrl">
                                     <template v-if="config.config_type === 'select'">
                                         <el-select
                                             v-model="formData[config.config_key]"
                                             :placeholder="$t('common.selectPlaceholder')"
-                                            style="width: 400px"
+                                            style="width: 320px"
                                         >
                                             <el-option
                                                 v-for="(optLabel, optValue) in parseOptions(
@@ -35,7 +62,6 @@
                                         </el-select>
                                     </template>
 
-                                    <!-- boolean 开关 -->
                                     <template v-else-if="config.config_type === 'boolean'">
                                         <el-switch
                                             v-model="formData[config.config_key]"
@@ -44,7 +70,6 @@
                                         />
                                     </template>
 
-                                    <!-- number 数字 -->
                                     <template v-else-if="config.config_type === 'number'">
                                         <el-input-number
                                             v-model="formData[config.config_key]"
@@ -53,7 +78,6 @@
                                         />
                                     </template>
 
-                                    <!-- file 图片上传 -->
                                     <template v-else-if="config.config_type === 'file'">
                                         <div>
                                             <el-upload
@@ -76,9 +100,7 @@
                                                     class="uploaded-image"
                                                     :alt="config.config_name"
                                                 />
-                                                <el-icon v-else class="image-uploader-icon">
-                                                    <Plus />
-                                                </el-icon>
+                                                <i v-else class="i-svg:plus image-uploader-icon" />
                                             </el-upload>
                                             <div class="upload-tip">
                                                 {{ config.config_desc }}
@@ -86,7 +108,6 @@
                                         </div>
                                     </template>
 
-                                    <!-- string 默认文本 -->
                                     <template v-else>
                                         <el-input
                                             v-model="formData[config.config_key]"
@@ -98,35 +119,17 @@
                                             style="width: 400px"
                                         />
                                     </template>
-
-                                    <div
-                                        v-if="config.config_desc && config.config_type !== 'file'"
-                                        class="config-desc"
-                                    >
-                                        {{ config.config_desc }}
-                                    </div>
-                                </el-form-item>
-                            </template>
-                        </el-form>
-
-                        <div class="form-actions">
-                            <el-button type="primary" :loading="loading" @click="handleSave">
-                                {{ $t('config.saveConfig') }}
-                            </el-button>
-                            <el-button @click="handleReset">{{
-                                $t('config.resetConfig')
-                            }}</el-button>
-                        </div>
+                                </div>
+                            </div>
+                        </template>
                     </div>
-                </el-tab-pane>
-            </el-tabs>
-        </el-card>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
 <script setup lang="ts" name="PlatformConfig">
-import { Plus } from '@element-plus/icons-vue'
-import type { FormInstance } from 'element-plus'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -137,9 +140,19 @@ import { getToken } from '@/utils/auth'
 
 const { t } = useI18n()
 
+const navIconClass: Record<string, string> = {
+    basic: 'i-svg:settings',
+    email: 'i-svg:mail',
+    sms: 'i-svg:smartphone',
+    storage: 'i-svg:server',
+    payment: 'i-svg:wallet',
+    wechat_official: 'i-svg:bot',
+    wechat_open: 'i-svg:globe',
+    wechat_mini: 'i-svg:message-square'
+}
+
 const activeTab = ref('basic')
 const loading = ref(false)
-const formRef = ref<FormInstance>()
 const appStore = useAppStore()
 
 const configGroups = ref<Record<string, string>>({})
@@ -147,14 +160,10 @@ const configsData = reactive<Record<string, any[]>>({})
 const formData = reactive<Record<string, any>>({})
 const originalFormData = reactive<Record<string, any>>({})
 
-// 上传请求头（computed 确保 Token 刷新后仍有效）
 const uploadHeaders = computed(() => ({
     Authorization: `Bearer ${getToken()}`
 }))
 
-/**
- * 判断是否为敏感字段（密码/密钥类）
- */
 const isSecretKey = (key: string): boolean => {
     return (
         key.includes('password') ||
@@ -164,9 +173,6 @@ const isSecretKey = (key: string): boolean => {
     )
 }
 
-/**
- * 解析 config_options JSON 为对象
- */
 const parseOptions = (options: any): Record<string, string> => {
     if (!options) return {}
     if (typeof options === 'string') {
@@ -179,9 +185,6 @@ const parseOptions = (options: any): Record<string, string> => {
     return options
 }
 
-/**
- * 判断配置项是否满足 depends 条件
- */
 const checkDepends = (config: any): boolean => {
     if (!config.config_depends) return true
 
@@ -212,7 +215,6 @@ const visibleConfigs = computed(() => {
     return currentConfigs.value.filter(checkDepends)
 })
 
-// 获取图片完整 URL
 const getImageUrl = (url: string) => {
     return appStore.getImageUrl(url)
 }
@@ -271,10 +273,10 @@ const loadConfigs = async (group: string) => {
     }
 }
 
-const handleTabChange = async (tabName: string | number) => {
-    const group = String(tabName)
-    if (!configsData[group]) {
-        await loadConfigs(group)
+const switchTab = async (key: string) => {
+    activeTab.value = key
+    if (!configsData[key]) {
+        await loadConfigs(key)
     }
 }
 
@@ -353,25 +355,6 @@ const handleReset = () => {
 
 <style scoped lang="scss">
 .platform-config {
-    .config-form {
-        margin-top: 20px;
-
-        .config-desc {
-            font-size: 12px;
-            color: var(--color-text-tertiary);
-            margin-top: 4px;
-            margin-left: 10px;
-        }
-
-        .form-actions {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid var(--color-divider);
-            text-align: center;
-        }
-    }
-
-    // 图片上传器样式
     .image-uploader {
         :deep(.el-upload) {
             border: 1px dashed var(--color-border);
@@ -409,14 +392,6 @@ const handleReset = () => {
         color: var(--color-text-tertiary);
         margin-top: 8px;
         line-height: 1.4;
-    }
-
-    :deep(.el-tabs__content) {
-        padding-top: 0;
-    }
-
-    :deep(.el-form-item__label) {
-        font-weight: 500;
     }
 }
 </style>

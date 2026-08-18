@@ -1,5 +1,12 @@
 <template>
     <div class="order-container">
+        <div class="page-head">
+            <div>
+                <div class="page-title">{{ $t('order.title') }}</div>
+                <div class="page-desc">{{ $t('order.desc') }}</div>
+            </div>
+        </div>
+
         <!-- 搜索区域 -->
         <el-card class="search-card" shadow="never">
             <el-form :model="searchForm" inline class="search-form">
@@ -61,88 +68,48 @@
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="handleSearch">
-                        <el-icon><Search /></el-icon>
+                        <i class="i-svg:search" />
                         {{ $t('common.search') }}
                     </el-button>
                     <el-button @click="resetSearch">
-                        <el-icon><Refresh /></el-icon>
+                        <i class="i-svg:refresh-cw" />
                         {{ $t('common.reset') }}
                     </el-button>
                 </el-form-item>
             </el-form>
         </el-card>
 
-        <!-- 表格 -->
-        <el-card class="table-card" shadow="never">
-            <div class="table-header">
-                <div class="table-title">{{ $t('order.title') }}</div>
-            </div>
-
-            <el-table v-loading="loading" :data="list" stripe>
-                <el-table-column label="ID" prop="id" width="70" />
-                <el-table-column
-                    :label="$t('order.orderNo')"
-                    prop="order_no"
-                    min-width="180"
-                    show-overflow-tooltip
-                />
-                <el-table-column :label="$t('order.tenant')" min-width="150" show-overflow-tooltip>
-                    <template #default="{ row }">
-                        {{ row.tenant_name || `#${row.tenant_id}` }}
-                    </template>
-                </el-table-column>
-                <el-table-column :label="$t('order.plan')" min-width="130" show-overflow-tooltip>
-                    <template #default="{ row }">
-                        {{ row.plan_name || row.plugin_name || '—' }}
-                    </template>
-                </el-table-column>
-                <el-table-column :label="$t('order.months')" width="90" align="center">
-                    <template #default="{ row }">
-                        {{ row.months }} {{ $t('order.monthsUnit') }}
-                    </template>
-                </el-table-column>
-                <el-table-column :label="$t('order.amount')" width="100" align="right">
-                    <template #default="{ row }">¥{{ row.amount }}</template>
-                </el-table-column>
-                <el-table-column
-                    :label="$t('order.paymentChannel')"
-                    prop="payment_channel"
-                    width="90"
-                    align="center"
-                />
-                <el-table-column :label="$t('common.status')" width="100" align="center">
-                    <template #default="{ row }">
-                        <el-tag :type="statusTagType(row.status)">
-                            {{ statusLabel(row.status) }}
-                        </el-tag>
-                    </template>
-                </el-table-column>
-                <el-table-column
-                    :label="$t('common.createdAt')"
-                    prop="created_at"
-                    min-width="160"
-                />
-                <el-table-column :label="$t('common.operation')" width="110" fixed="right">
-                    <template #default="{ row }">
-                        <el-button link type="primary" @click="handleShow(row)">
-                            {{ $t('common.detail') }}
-                        </el-button>
-                    </template>
-                </el-table-column>
-            </el-table>
-
-            <div class="pagination">
-                <el-pagination
-                    v-model:current-page="pagination.page"
-                    v-model:page-size="pagination.limit"
-                    :total="pagination.total"
-                    :page-sizes="[10, 20, 50, 100]"
-                    layout="total, sizes, prev, pager, next, jumper"
-                    @size-change="handleSizeChange"
-                    @current-change="handlePageChange"
-                />
-            </div>
-        </el-card>
+        <ProTable
+            :title="$t('order.title')"
+            storage-key="platform-order-list"
+            :columns="columns"
+            :data="list"
+            :loading="loading"
+            :pagination="pagination"
+            @page-change="handlePageChange"
+            @size-change="handleSizeChange"
+        >
+            <template #tenant="{ row }">
+                {{ row.tenant_name || `#${row.tenant_id}` }}
+            </template>
+            <template #plan="{ row }">
+                {{ row.plan_name || row.plugin_name || '—' }}
+            </template>
+            <template #months="{ row }">
+                {{ row.months }} {{ $t('order.monthsUnit') }}
+            </template>
+            <template #amount="{ row }">¥{{ row.amount }}</template>
+            <template #status="{ row }">
+                <el-tag :type="statusTagType(row.status)">
+                    {{ statusLabel(row.status) }}
+                </el-tag>
+            </template>
+            <template #action="{ row }">
+                <el-button link type="primary" @click="handleShow(row)">
+                    {{ $t('common.detail') }}
+                </el-button>
+            </template>
+        </ProTable>
 
         <!-- 详情弹窗 -->
         <OrderDetail :id="currentId" v-model:visible="detailVisible" @refresh="getList" />
@@ -150,13 +117,14 @@
 </template>
 
 <script setup lang="ts" name="OrderList">
-import { Refresh, Search } from '@element-plus/icons-vue'
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { orderApi } from '@/api/order'
 import { planApi } from '@/api/plan'
 import { tenantApi } from '@/api/tenant'
+import ProTable from '@/components/ProTable/index.vue'
+import type { ProColumn } from '@/components/ProTable/types'
 import { useListPage } from '@/hooks/useListPage'
 import type { OrderQuery, PlanInfo, SaasOrderInfo, TenantInfo } from '@/types/api'
 
@@ -190,6 +158,31 @@ const {
         plan_id: ''
     }
 })
+
+const columns: ProColumn[] = [
+    { key: 'id', label: 'ID', prop: 'id', width: 70, required: true },
+    {
+        key: 'order_no',
+        label: t('order.orderNo'),
+        prop: 'order_no',
+        minWidth: 180,
+        showOverflowTooltip: true
+    },
+    { key: 'tenant', label: t('order.tenant'), minWidth: 150, showOverflowTooltip: true },
+    { key: 'plan', label: t('order.plan'), minWidth: 130, showOverflowTooltip: true },
+    { key: 'months', label: t('order.months'), width: 110, align: 'center' },
+    { key: 'amount', label: t('order.amount'), width: 100, align: 'right' },
+    {
+        key: 'payment_channel',
+        label: t('order.paymentChannel'),
+        prop: 'payment_channel',
+        width: 120,
+        align: 'center'
+    },
+    { key: 'status', label: t('common.status'), width: 110, align: 'center' },
+    { key: 'created_at', label: t('common.createdAt'), prop: 'created_at', minWidth: 160 },
+    { key: 'action', label: t('common.operation'), width: 110, fixed: 'right', required: true }
+]
 
 // 租户远程搜索下拉（按名称/code 模糊搜，避免记 ID）
 const tenantOptions = ref<TenantInfo[]>([])
@@ -244,29 +237,3 @@ function statusTagType(s: number): 'info' | 'success' | 'warning' | 'danger' {
 }
 </script>
 
-<style lang="scss" scoped>
-.order-container {
-    /* 外层 LayoutMain 已有 padding，这里不重复 */
-    .search-card {
-        margin-bottom: 16px;
-    }
-
-    .table-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 16px;
-
-        .table-title {
-            font-size: 16px;
-            font-weight: 600;
-        }
-    }
-
-    .pagination {
-        margin-top: 16px;
-        display: flex;
-        justify-content: flex-end;
-    }
-}
-</style>

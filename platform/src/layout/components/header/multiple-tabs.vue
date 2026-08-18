@@ -1,5 +1,5 @@
 <template>
-    <div class="app-tabs flex bg-body">
+    <div class="app-tabs flex">
         <div class="flex-1 min-w-0">
             <el-tabs
                 v-model="currentTab"
@@ -83,8 +83,12 @@ const handleCommand = (command: string) => {
 
 <style lang="scss" scoped>
 .app-tabs {
+    height: var(--tabs-h);
+    background: #fff;
+    border-bottom: 1px solid var(--ink-100);
+
     :deep(.el-tabs) {
-        height: 40px;
+        height: var(--tabs-h);
 
         .el-tabs {
             &__header {
@@ -137,43 +141,38 @@ const handleCommand = (command: string) => {
             }
 
             &__item {
-                font-weight: normal;
+                font-weight: 400;
+                font-size: 12.5px;
+                color: var(--ink-500);
                 padding: 0 15px !important;
                 box-sizing: border-box;
 
                 &.is-active {
-                    background-color: var(--color-brand-ghost);
+                    background-color: var(--brand-50);
+                    color: var(--brand-500);
+                    border: 1px solid var(--brand-100);
+                    border-bottom: none;
+                    border-radius: var(--r-sm) var(--r-sm) 0 0;
 
                     &::before {
                         content: '';
                         display: inline-block;
-                        width: 6px;
-                        height: 6px;
-                        background-color: var(--el-color-primary);
+                        width: 4px;
+                        height: 4px;
+                        background-color: var(--brand-500);
                         margin-right: 6px;
                         border-radius: 50%;
                         vertical-align: 2px;
                     }
-
-                    &::after {
-                        position: absolute;
-                        content: '';
-                        display: block;
-                        top: 0;
-                        height: 2px;
-                        left: 0;
-                        width: 100%;
-                        background-color: var(--el-color-primary);
-                    }
                 }
 
                 .is-icon-close {
-                    color: var(--el-text-color-regular);
+                    color: var(--ink-400);
                     vertical-align: -2px;
 
                     &:hover {
-                        color: var(--color-white);
-                        background-color: var(--el-color-danger);
+                        color: #fff;
+                        background-color: var(--brand-500);
                     }
                 }
             }

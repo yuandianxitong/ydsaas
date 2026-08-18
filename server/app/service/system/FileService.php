@@ -31,11 +31,7 @@ class FileService extends Service
             $where[] = ['group', '=', $params['group']];
         }
         if (!empty($params['mime_type'])) {
-            if ($params['mime_type'] === 'image') {
-                $where[] = ['mime_type', 'like', 'image/%'];
-            } else {
-                $where[] = ['mime_type', 'not like', 'image/%'];
-            }
+            $this->applyMimeTypeFilter($where, (string) $params['mime_type']);
         }
         if (isset($params['category_id']) && $params['category_id'] !== '') {
             $where[] = ['category_id', '=', (int) $params['category_id']];
@@ -174,6 +170,43 @@ class FileService extends Service
             throw new BusinessException(lang('business.file_not_found'));
         }
         return $this->fileRepo->update($id, ['name' => $name]);
+    }
+
+    /**
+     * mime_type 过滤：image / other 保持旧语义；新增 video / audio / document / archive / misc。
+     */
+    private function applyMimeTypeFilter(array &$where, string $mimeType): void
+    {
+        $documents = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'csv', 'md'];
+        $archives  = ['zip', 'rar', '7z', 'tar', 'gz', 'bz2'];
+
+        switch ($mimeType) {
+            case 'image':
+                $where[] = ['mime_type', 'like', 'image/%'];
+                break;
+            case 'video':
+                $where[] = ['mime_type', 'like', 'video/%'];
+                break;
+            case 'audio':
+                $where[] = ['mime_type', 'like', 'audio/%'];
+                break;
+            case 'document':
+                $where[] = ['extension', 'in', $documents];
+                break;
+            case 'archive':
+                $where[] = ['extension', 'in', $archives];
+                break;
+            case 'misc':
+                $where[] = ['mime_type', 'not like', 'image/%'];
+                $where[] = ['mime_type', 'not like', 'video/%'];
+                $where[] = ['mime_type', 'not like', 'audio/%'];
+                $where[] = ['extension', 'not in', array_merge($documents, $archives)];
+                break;
+            case 'other':
+            default:
+                $where[] = ['mime_type', 'not like', 'image/%'];
+                break;
+        }
     }
 
     /**

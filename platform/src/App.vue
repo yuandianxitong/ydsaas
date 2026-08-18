@@ -18,7 +18,7 @@ const elLocale = computed(() => {
 })
 
 onMounted(() => {
-    settingStore.applyThemeMode()
+    settingStore.apply()
 })
 
 const { width } = useWindowSize()

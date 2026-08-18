@@ -1,5 +1,22 @@
 <template>
     <div class="dictionary-container">
+        <div class="page-head">
+            <div>
+                <div class="page-title">{{ $t('dictionary.title') }}</div>
+                <div class="page-desc">{{ $t('dictionary.desc') }}</div>
+            </div>
+            <div class="page-actions">
+                <el-button
+                    v-has-perm="'platform.dictionary.create'"
+                    type="primary"
+                    @click="handleAddDict"
+                >
+                    <i class="i-svg:plus" />
+                    {{ $t('dictionary.addDict') }}
+                </el-button>
+            </div>
+        </div>
+
         <!-- 搜索区域 -->
         <el-card class="search-card" shadow="never">
             <el-form :model="searchForm" inline class="search-form">
@@ -24,191 +41,80 @@
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="handleSearch">
-                        <el-icon><Search /></el-icon>
+                        <i class="i-svg:search" />
                         {{ $t('common.search') }}
                     </el-button>
                     <el-button @click="resetSearch">
-                        <el-icon><Refresh /></el-icon>
+                        <i class="i-svg:refresh-cw" />
                         {{ $t('common.reset') }}
                     </el-button>
                 </el-form-item>
             </el-form>
         </el-card>
 
-        <!-- 表格区域 -->
-        <el-card class="table-card" shadow="never">
-            <div class="table-header">
-                <div class="table-title">{{ $t('dictionary.title') }}</div>
-                <div class="table-actions">
-                    <el-button
-                        v-has-perm="'platform.dictionary.create'"
-                        type="primary"
-                        @click="handleAddDict"
-                    >
-                        <el-icon><Plus /></el-icon>
-                        {{ $t('dictionary.addDict') }}
-                    </el-button>
-                </div>
-            </div>
-
-            <el-table v-loading="loading" :data="list">
-                <el-table-column :label="$t('common.id')" prop="id" width="80" />
-                <el-table-column :label="$t('dictionary.dictName')" prop="name" min-width="140" />
-                <el-table-column :label="$t('dictionary.dictCode')" prop="code" min-width="160" />
-                <el-table-column
-                    :label="$t('dictionary.description')"
-                    prop="description"
-                    min-width="180"
-                    show-overflow-tooltip
-                />
-                <el-table-column :label="$t('common.sort')" prop="sort" width="80" align="center" />
-                <el-table-column :label="$t('common.status')" width="100" align="center">
-                    <template #default="{ row }">
-                        <el-tag :type="row.status === 1 ? 'success' : 'danger'" size="small">
-                            {{ row.status === 1 ? $t('common.enable') : $t('common.disable') }}
-                        </el-tag>
-                    </template>
-                </el-table-column>
-                <el-table-column :label="$t('common.createdAt')" prop="created_at" width="180" />
-                <el-table-column :label="$t('common.operation')" width="220" fixed="right">
-                    <template #default="{ row }">
-                        <el-button type="primary" size="small" text @click="handleOpenItems(row)">
-                            {{ $t('dictionary.items') }}
-                        </el-button>
-                        <el-button
-                            v-has-perm="'platform.dictionary.update'"
-                            type="primary"
-                            size="small"
-                            text
-                            @click="handleEditDict(row)"
-                        >
-                            {{ $t('common.edit') }}
-                        </el-button>
-                        <el-button
-                            v-has-perm="'platform.dictionary.delete'"
-                            type="danger"
-                            size="small"
-                            text
-                            @click="handleDelete(row.id, row.name)"
-                        >
-                            {{ $t('common.delete') }}
-                        </el-button>
-                    </template>
-                </el-table-column>
-            </el-table>
-
-            <el-pagination
-                v-model:current-page="pagination.page"
-                v-model:page-size="pagination.limit"
-                :total="pagination.total"
-                :page-sizes="[10, 20, 50, 100]"
-                layout="total, sizes, prev, pager, next, jumper"
-                class="pagination"
-                @size-change="handleSizeChange"
-                @current-change="handlePageChange"
-            />
-        </el-card>
-
-        <!-- 字典项弹窗 -->
-        <el-dialog
-            v-model="itemDialogVisible"
-            class="dialog-xl"
-            :title="t('dictionary.itemsTitle', { name: currentDict?.name || '' })"
-            destroy-on-close
+        <ProTable
+            :title="$t('dictionary.title')"
+            storage-key="platform-dictionary-list"
+            :columns="columns"
+            :data="list"
+            :loading="loading"
+            :pagination="pagination"
+            :batch-delete-fn="handleBatchDelete"
+            @page-change="handlePageChange"
+            @size-change="handleSizeChange"
         >
-            <div class="flex justify-end mb-3">
+            <template #status="{ row }">
+                <el-tag :type="row.status === 1 ? 'success' : 'danger'" size="small">
+                    {{ row.status === 1 ? $t('common.enable') : $t('common.disable') }}
+                </el-tag>
+            </template>
+            <template #action="{ row }">
+                <el-button type="primary" size="small" text @click="handleOpenItems(row)">
+                    {{ $t('dictionary.items') }}
+                </el-button>
                 <el-button
-                    v-has-perm="'platform.dictionary.create'"
+                    v-has-perm="'platform.dictionary.update'"
                     type="primary"
                     size="small"
-                    @click="handleAddItem"
+                    text
+                    @click="handleEditDict(row)"
                 >
-                    <el-icon><Plus /></el-icon>
-                    {{ $t('dictionary.addItem') }}
+                    {{ $t('common.edit') }}
                 </el-button>
-            </div>
-            <el-table v-loading="itemLoading" :data="itemList" size="small">
-                <el-table-column prop="label" :label="$t('dictionary.label')" min-width="100" />
-                <el-table-column prop="value" :label="$t('dictionary.value')" min-width="80" />
-                <el-table-column
-                    prop="tag_type"
-                    :label="$t('dictionary.tagType')"
-                    width="100"
-                    align="center"
+                <el-button
+                    v-has-perm="'platform.dictionary.delete'"
+                    type="danger"
+                    size="small"
+                    text
+                    @click="handleDelete(row.id, row.name)"
                 >
-                    <template #default="{ row }">
-                        <el-tag v-if="row.tag_type" :type="row.tag_type" size="small">{{
-                            row.tag_type
-                        }}</el-tag>
-                        <span v-else class="text-gray-400">-</span>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="sort" :label="$t('common.sort')" width="60" align="center" />
-                <el-table-column
-                    prop="status"
-                    :label="$t('common.status')"
-                    width="80"
-                    align="center"
-                >
-                    <template #default="{ row }">
-                        <el-tag :type="row.status === 1 ? 'success' : 'danger'" size="small">
-                            {{ row.status === 1 ? $t('common.enable') : $t('common.disable') }}
-                        </el-tag>
-                    </template>
-                </el-table-column>
-                <el-table-column
-                    prop="description"
-                    :label="$t('dictionary.description')"
-                    min-width="120"
-                    show-overflow-tooltip
-                />
-                <el-table-column :label="$t('common.operation')" width="120" align="center">
-                    <template #default="{ row }">
-                        <el-button
-                            v-has-perm="'platform.dictionary.update'"
-                            link
-                            type="primary"
-                            size="small"
-                            @click="handleEditItem(row)"
-                            >{{ $t('common.edit') }}</el-button
-                        >
-                        <el-button
-                            v-has-perm="'platform.dictionary.delete'"
-                            link
-                            type="danger"
-                            size="small"
-                            @click="handleDeleteItem(row)"
-                            >{{ $t('common.delete') }}</el-button
-                        >
-                    </template>
-                </el-table-column>
-            </el-table>
-        </el-dialog>
+                    {{ $t('common.delete') }}
+                </el-button>
+            </template>
+        </ProTable>
 
-        <!-- 字典表单弹窗 -->
-        <DictForm v-model="showDictForm" :form-data="dictFormData" @success="getList" />
-
-        <!-- 字典项表单弹窗 -->
-        <DictItemForm
-            v-model="showItemForm"
-            :form-data="itemFormData"
-            :dictionary-id="currentDict?.id || 0"
-            @success="fetchItemList"
+        <DictItemsDialog
+            v-model="itemDialogVisible"
+            :dict-id="currentDict?.id || 0"
+            :dict-name="currentDict?.name || ''"
+            :dict-code="currentDict?.code || ''"
         />
+
+        <DictForm v-model="showDictForm" :form-data="dictFormData" @success="getList" />
     </div>
 </template>
 
 <script setup lang="ts">
-import { Plus, Refresh, Search } from '@element-plus/icons-vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { dictionaryApi } from '@/api/dictionary'
+import ProTable from '@/components/ProTable/index.vue'
+import type { ProColumn } from '@/components/ProTable/types'
 import { useListPage } from '@/hooks/useListPage'
 
 import DictForm from './components/DictForm.vue'
-import DictItemForm from './components/DictItemForm.vue'
+import DictItemsDialog from './components/DictItemsDialog.vue'
 
 const { t } = useI18n()
 
@@ -223,12 +129,31 @@ const {
     resetSearch,
     handleSizeChange,
     handlePageChange,
-    handleDelete
+    handleDelete,
+    handleBatchDelete
 } = useListPage<any, { keyword: string; status?: number }>({
     fetchFn: (params) => dictionaryApi.getList(params),
     deleteFn: (id) => dictionaryApi.delete(id),
+    batchDeleteFn: (ids) => dictionaryApi.batchDelete(ids),
     defaultSearchForm: { keyword: '', status: undefined }
 })
+
+const columns: ProColumn[] = [
+    { key: 'id', label: t('common.id'), prop: 'id', width: 80, required: true },
+    { key: 'name', label: t('dictionary.dictName'), prop: 'name', minWidth: 140 },
+    { key: 'code', label: t('dictionary.dictCode'), prop: 'code', minWidth: 160 },
+    {
+        key: 'description',
+        label: t('dictionary.description'),
+        prop: 'description',
+        minWidth: 180,
+        showOverflowTooltip: true
+    },
+    { key: 'sort', label: t('common.sort'), prop: 'sort', width: 90, align: 'center' },
+    { key: 'status', label: t('common.status'), width: 100, align: 'center' },
+    { key: 'created_at', label: t('common.createdAt'), prop: 'created_at', width: 180 },
+    { key: 'action', label: t('common.operation'), width: 220, fixed: 'right', required: true }
+]
 
 // 字典表单
 const showDictForm = ref(false)
@@ -244,53 +169,11 @@ const handleEditDict = (row: any) => {
     showDictForm.value = true
 }
 
-// ========== 字典项 ==========
 const itemDialogVisible = ref(false)
 const currentDict = ref<any>(null)
-const itemLoading = ref(false)
-const itemList = ref<any[]>([])
 
 const handleOpenItems = (row: any) => {
     currentDict.value = row
     itemDialogVisible.value = true
-    fetchItemList()
-}
-
-const fetchItemList = async () => {
-    if (!currentDict.value) return
-    itemLoading.value = true
-    try {
-        const res = await dictionaryApi.getItems(currentDict.value.id)
-        itemList.value = Array.isArray(res.data) ? res.data : []
-    } catch (error) {
-        console.error('获取字典项失败:', error)
-    } finally {
-        itemLoading.value = false
-    }
-}
-
-// 字典项表单
-const showItemForm = ref(false)
-const itemFormData = ref<any>({})
-
-const handleAddItem = () => {
-    itemFormData.value = {}
-    showItemForm.value = true
-}
-
-const handleEditItem = (row: any) => {
-    itemFormData.value = { ...row }
-    showItemForm.value = true
-}
-
-const handleDeleteItem = async (row: any) => {
-    await ElMessageBox.confirm(
-        t('message.deleteConfirmName', { name: row.label }),
-        t('common.tip'),
-        { type: 'warning' }
-    )
-    await dictionaryApi.deleteItem(row.id)
-    ElMessage.success(t('message.deleteSuccess'))
-    fetchItemList()
 }
 </script>

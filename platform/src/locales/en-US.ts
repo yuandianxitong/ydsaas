@@ -126,28 +126,9 @@ const main = {
         classicBlue: 'Classic Blue',
         minimalWhite: 'Minimal White',
         title: 'Settings',
-        themeMode: 'Theme Mode',
-        themeModes: { system: 'System', light: 'Light', dark: 'Dark' },
         primaryColor: 'Primary Color',
-        primaryColors: {
-            current: 'Current',
-            purple: 'Purple',
-            blue: 'Blue',
-            green: 'Green',
-            orange: 'Orange',
-            magenta: 'Magenta',
-            red: 'Red'
-        },
-        darkTheme: 'Dark Theme',
-        darkThemes: {
-            mint: 'Mint',
-            navy: 'Navy',
-            mirage: 'Mirage',
-            cinder: 'Cinder',
-            black: 'Black'
-        },
-        layoutMode: 'Layout Mode',
-        layoutModes: { classic: 'Classic', sidebar: 'Sidebar' },
+        compact: 'Compact mode',
+        sidebarLabels: 'Sidebar labels',
         otherSettings: 'Other Settings',
         reset: 'Reset Settings'
     },
@@ -208,6 +189,20 @@ const main = {
         statusUpdateSuccess: 'Status updated successfully',
         loading: 'Loading...',
         noData: 'No Data',
+        totalCount: '{total} records',
+        totalRecords: '{total} records',
+        columnConfig: 'Columns',
+        columnConfigHint: 'Toggle, reorder, and pin columns',
+        selectedCount: '{count} selected',
+        clearSelection: 'Clear',
+        restoreDefault: 'Reset',
+        apply: 'Apply',
+        selectAll: 'Select all',
+        shownColumns: '{shown} / {total} shown',
+        requiredCol: 'Required',
+        autoWidth: 'Auto',
+        pinLeft: 'Pin left',
+        pinRight: 'Pin right',
         all: 'All',
         yes: 'Yes',
         no: 'No',
@@ -335,6 +330,7 @@ const main = {
     system: {
         menu: {
             title: 'Menu Management',
+            desc: 'Maintain platform menus and permission points',
             menuName: 'Menu Name',
             menuType: 'Menu Type',
             directory: 'Directory',
@@ -356,10 +352,32 @@ const main = {
             affix: 'Affix Tab',
             badge: 'Badge',
             iframe: 'Iframe',
-            searchPlaceholder: 'Search menu name'
+            searchPlaceholder: 'Search menu name',
+            menuStructure: 'Menu Structure',
+            menuDetail: 'Menu Detail',
+            addChildMenu: 'Add Child Menu',
+            basicInfo: 'Basic Info',
+            displayBehavior: 'Display & Behavior',
+            selectMenuTip: 'Select a menu on the left to edit',
+            saveChanges: 'Save Changes',
+            hiddenTip: 'Turn off to disable this menu',
+            cacheTip: 'Keep the page cached when enabled',
+            affixTip: 'Pin this page in the tab bar',
+            hiddenFromNavTip: 'Hide this item from the navigation',
+            namePlaceholder: 'Enter menu name',
+            permPlaceholder: 'e.g. system.admin.list',
+            routePathPlaceholder: 'Enter route path',
+            componentPlaceholder: 'Enter component path',
+            routeNamePlaceholder: 'Enter route name',
+            parentMenuPlaceholder: 'Select parent menu',
+            validate: {
+                nameRequired: 'Please enter menu name',
+                typeRequired: 'Please select menu type'
+            }
         },
         admin: {
             title: 'Admin Management',
+            desc: 'Manage platform administrator accounts',
             username: 'Username',
             nickname: 'Nickname',
             email: 'Email',
@@ -377,6 +395,7 @@ const main = {
         },
         role: {
             title: 'Role Management',
+            desc: 'Configure platform roles and permissions',
             roleName: 'Role Name',
             roleCode: 'Role Code',
             addRole: 'Add Role',
@@ -389,6 +408,7 @@ const main = {
         },
         log: {
             title: 'Log Management',
+            desc: 'View login and operation logs',
             loginLog: 'Login Log',
             operationLog: 'Operation Log',
             loginIp: 'Login IP',
@@ -408,6 +428,7 @@ const main = {
         },
         config: {
             title: 'System Configuration',
+            desc: 'Configure site and runtime settings',
             group: 'Config Group',
             basic: 'Basic Settings',
             upload: 'Upload Settings',
@@ -422,6 +443,7 @@ const main = {
     // === Tenant management ===
     tenant: {
         title: 'Tenant Management',
+        desc: 'Manage tenant onboarding, subscriptions, and lifecycle',
         tenantCode: 'Tenant Code',
         tenantName: 'Tenant Name',
         plan: 'Plan',
@@ -481,6 +503,7 @@ const main = {
     // === Plan management ===
     plan: {
         title: 'Plan Management',
+        desc: 'Configure plan pricing, quotas, and feature flags',
         planCode: 'Plan Code',
         planName: 'Plan Name',
         priceMonthly: 'Monthly Price',
@@ -545,6 +568,7 @@ const main = {
     // === Order management ===
     order: {
         title: 'Order Management',
+        desc: 'View subscription orders and payment status',
         orderNo: 'Order No.',
         tenantName: 'Tenant Name',
         planName: 'Plan Name',
@@ -597,6 +621,7 @@ const main = {
     // === Refund management ===
     refund: {
         title: 'Refund Management',
+        desc: 'Process platform order refunds',
         refundNo: 'Refund No.',
         orderNo: 'Related Order',
         amount: 'Refund Amount',
@@ -653,6 +678,7 @@ const main = {
     // === Mobile build monitoring ===
     mobileBuild: {
         title: 'Mobile Build Monitoring',
+        desc: 'Monitor tenant mobile build jobs',
         platform: 'Platform',
         mpWeixin: 'WeChat Mini Program',
         buildNo: 'Build No.',
@@ -675,6 +701,7 @@ const main = {
     // === Audit management ===
     audit: {
         title: 'Tenant Audit Log',
+        desc: 'Review tenant admin operation audits',
         auditType: 'Audit Type',
         auditStatus: 'Audit Status',
         auditTime: 'Audit Time',
@@ -698,6 +725,7 @@ const main = {
     // === Announcement management ===
     announcement: {
         title: 'Announcement Management',
+        desc: 'Publish platform announcements to tenants',
         announcementTitle: 'Title',
         content: 'Content',
         publishTime: 'Publish Time',
@@ -727,6 +755,7 @@ const main = {
     // === Scheduled tasks ===
     cronJob: {
         title: 'Scheduled Tasks',
+        desc: 'Manage cron jobs and execution logs',
         addTask: 'Add Task',
         editTask: 'Edit Task',
         taskName: 'Task Name',
@@ -759,11 +788,19 @@ const main = {
     // === File management ===
     file: {
         title: 'File Management',
+        desc: 'Manage uploaded platform files',
         fileGroup: 'File Group',
         allFiles: 'All Files',
         searchPlaceholder: 'Search file name',
         fileType: 'File Type',
+        category: 'Category',
         image: 'Image',
+        video: 'Video',
+        audio: 'Audio',
+        document: 'Document',
+        archive: 'Archive',
+        other: 'Other',
+        empty: 'No files',
         file: 'File',
         fileName: 'File Name',
         type: 'Type',
@@ -780,6 +817,7 @@ const main = {
     // === Dictionary management ===
     dictionary: {
         title: 'Data Dictionary',
+        desc: 'Maintain system dictionaries',
         addDict: 'Add Dictionary',
         editDict: 'Edit Dictionary',
         dictName: 'Dictionary Name',
@@ -789,6 +827,13 @@ const main = {
         statusPlaceholder: 'Select status',
         items: 'Items',
         itemsTitle: 'Dictionary Items — {name}',
+        itemsSubtitle: 'Code',
+        itemsCount: '{count} items',
+        searchItems: 'Search label or value',
+        batchDisable: 'Disable selected',
+        export: 'Export',
+        addItemShort: 'Add item',
+        dragHint: 'Drag the handle to reorder',
         addItem: 'Add Item',
         editItem: 'Edit Item',
         label: 'Label',
@@ -818,6 +863,8 @@ const main = {
 
     // === Code Generator ===
     generator: {
+        title: 'Code Generator',
+        desc: 'Generate CRUD code from database tables',
         step1: 'Select Table',
         step2: 'Configure Fields',
         step3: 'Preview & Generate',
@@ -870,6 +917,7 @@ const main = {
     // === API Documentation ===
     apiDoc: {
         title: 'API Documentation',
+        desc: 'Browse platform, tenant, and frontend API docs',
         openSwagger: 'Open Swagger UI in new window',
         downloadJson: 'Download OpenAPI JSON',
         loadFailed: 'Failed to load API documentation',
@@ -1022,6 +1070,7 @@ const main = {
     // System config
     config: {
         title: 'Settings',
+        desc: 'Configure site and runtime settings',
         exportTitle: 'Export Settings',
         saveConfig: 'Save Configuration',
         resetConfig: 'Reset',
@@ -1180,6 +1229,7 @@ const main = {
     // Permission management
     permission: {
         title: 'Permission Management',
+        desc: 'View and assign platform permissions',
         addPermission: 'Add Permission',
         editPermission: 'Edit Permission',
         permCode: 'Permission Code',
@@ -1316,6 +1366,7 @@ const main = {
     // Region Data
     regionMgmt: {
         title: 'Region Data',
+        desc: 'Maintain province, city, and district data',
         addRegion: 'Add Region',
         addChildRegion: 'Add Child',
         editRegion: 'Edit Region',
@@ -1340,6 +1391,7 @@ const main = {
     // Version Management
     versionMgmt: {
         title: 'Version Management',
+        desc: 'Manage client version releases',
         addVersion: 'Add Version',
         editVersion: 'Edit Version',
         platform: 'Platform',
@@ -1363,6 +1415,18 @@ const main = {
             versionCodeRequired: 'Please enter version code',
             downloadUrlRequired: 'Please enter download URL'
         }
+    },
+    plugin: {
+        title: 'Plugin Management',
+        desc: 'Manage local plugins and the official marketplace',
+        local: 'Local Plugins',
+        marketplace: 'Marketplace'
+    },
+    license: {
+        title: 'Product License',
+        desc: 'Activate the official license to unlock marketplace and commercial features',
+        refresh: 'Refresh status',
+        heartbeat: 'Validate now'
     }
 }
 

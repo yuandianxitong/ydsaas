@@ -1,5 +1,18 @@
 <template>
     <div class="plan-container">
+        <div class="page-head">
+            <div>
+                <div class="page-title">{{ $t('plan.title') }}</div>
+                <div class="page-desc">{{ $t('plan.desc') }}</div>
+            </div>
+            <div class="page-actions">
+                <el-button type="primary" @click="handleAdd">
+                    <i class="i-svg:plus" />
+                    {{ $t('plan.addPlan') }}
+                </el-button>
+            </div>
+        </div>
+
         <!-- 搜索区域 -->
         <el-card class="search-card" shadow="never">
             <el-form :model="searchForm" inline class="search-form">
@@ -25,114 +38,56 @@
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="handleSearch">
-                        <el-icon><Search /></el-icon>
+                        <i class="i-svg:search" />
                         {{ $t('common.search') }}
                     </el-button>
                     <el-button @click="resetSearch">
-                        <el-icon><Refresh /></el-icon>
+                        <i class="i-svg:refresh-cw" />
                         {{ $t('common.reset') }}
                     </el-button>
                 </el-form-item>
             </el-form>
         </el-card>
 
-        <!-- 操作区域 -->
-        <el-card class="table-card" shadow="never">
-            <div class="table-header">
-                <div class="table-title">{{ $t('plan.title') }}</div>
-                <div class="table-actions">
-                    <el-button type="primary" @click="handleAdd">
-                        <el-icon><Plus /></el-icon>
-                        {{ $t('plan.addPlan') }}
-                    </el-button>
-                </div>
-            </div>
-
-            <!-- 表格 -->
-            <el-table v-loading="loading" :data="list" stripe>
-                <el-table-column label="ID" prop="id" width="80" />
-
-                <el-table-column
-                    :label="$t('plan.planCode')"
-                    prop="code"
-                    min-width="100"
-                    show-overflow-tooltip
-                />
-
-                <el-table-column
-                    :label="$t('plan.planName')"
-                    prop="name"
-                    min-width="150"
-                    show-overflow-tooltip
-                />
-
-                <el-table-column :label="$t('plan.priceMonthly')" prop="price_monthly" width="120">
-                    <template #default="{ row }"> ¥{{ row.price_monthly }} </template>
-                </el-table-column>
-
-                <el-table-column :label="$t('plan.priceYearly')" prop="price_yearly" width="120">
-                    <template #default="{ row }"> ¥{{ row.price_yearly }} </template>
-                </el-table-column>
-
-                <el-table-column
-                    :label="$t('plan.storageLimit')"
-                    prop="storage_limit_bytes"
-                    width="140"
+        <ProTable
+            :title="$t('plan.title')"
+            storage-key="platform-plan-list"
+            :columns="columns"
+            :data="list"
+            :loading="loading"
+            :pagination="pagination"
+            :batch-delete-fn="handleBatchDelete"
+            @page-change="handlePageChange"
+            @size-change="handleSizeChange"
+        >
+            <template #price_monthly="{ row }">¥{{ row.price_monthly }}</template>
+            <template #price_yearly="{ row }">¥{{ row.price_yearly }}</template>
+            <template #storage_limit_bytes="{ row }">
+                {{ formatBytes(row.storage_limit_bytes) }}
+            </template>
+            <template #status="{ row }">
+                <el-tag :type="row.status === 1 ? 'success' : 'info'">
+                    {{ row.status === 1 ? $t('common.enabled') : $t('common.disabled') }}
+                </el-tag>
+            </template>
+            <template #action="{ row }">
+                <el-button type="primary" size="small" text @click="handleEdit(row)">
+                    {{ $t('common.edit') }}
+                </el-button>
+                <el-popconfirm
+                    :title="$t('common.deleteConfirm')"
+                    :confirm-button-text="$t('common.confirm')"
+                    :cancel-button-text="$t('common.cancel')"
+                    @confirm="handleDelete(row.id, row.name)"
                 >
-                    <template #default="{ row }">
-                        {{ formatBytes(row.storage_limit_bytes) }}
-                    </template>
-                </el-table-column>
-
-                <el-table-column :label="$t('common.sort')" prop="sort" width="80" align="center" />
-
-                <el-table-column :label="$t('common.status')" width="100" align="center">
-                    <template #default="{ row }">
-                        <el-tag :type="row.status === 1 ? 'success' : 'info'">
-                            {{ row.status === 1 ? $t('common.enabled') : $t('common.disabled') }}
-                        </el-tag>
-                    </template>
-                </el-table-column>
-
-                <el-table-column
-                    :label="$t('common.createdAt')"
-                    prop="created_at"
-                    min-width="160"
-                />
-
-                <el-table-column :label="$t('common.operation')" width="180" fixed="right">
-                    <template #default="{ row }">
-                        <el-button type="primary" size="small" text @click="handleEdit(row)">
-                            {{ $t('common.edit') }}
+                    <template #reference>
+                        <el-button type="danger" size="small" text>
+                            {{ $t('common.delete') }}
                         </el-button>
-                        <el-popconfirm
-                            :title="$t('common.deleteConfirm')"
-                            :confirm-button-text="$t('common.confirm')"
-                            :cancel-button-text="$t('common.cancel')"
-                            @confirm="handleDelete(row.id, row.name)"
-                        >
-                            <template #reference>
-                                <el-button type="danger" size="small" text>
-                                    {{ $t('common.delete') }}
-                                </el-button>
-                            </template>
-                        </el-popconfirm>
                     </template>
-                </el-table-column>
-            </el-table>
-
-            <!-- 分页 -->
-            <el-pagination
-                v-model:current-page="pagination.page"
-                v-model:page-size="pagination.limit"
-                :total="pagination.total"
-                :page-sizes="[10, 20, 50, 100]"
-                layout="total, sizes, prev, pager, next, jumper"
-                class="pagination"
-                @size-change="handleSizeChange"
-                @current-change="handlePageChange"
-            />
-        </el-card>
+                </el-popconfirm>
+            </template>
+        </ProTable>
 
         <!-- 新增/编辑弹窗 -->
         <PlanForm v-model="formVisible" :source-id="currentId" @success="getList" />
@@ -140,10 +95,12 @@
 </template>
 
 <script setup lang="ts" name="PlanList">
-import { Plus, Refresh, Search } from '@element-plus/icons-vue'
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import { planApi } from '@/api/plan'
+import ProTable from '@/components/ProTable/index.vue'
+import type { ProColumn } from '@/components/ProTable/types'
 import { useListPage } from '@/hooks/useListPage'
 import type { PlanInfo } from '@/types/api'
 
@@ -165,17 +122,33 @@ const {
     resetSearch,
     handleSizeChange,
     handlePageChange,
-    handleDelete
+    handleDelete,
+    handleBatchDelete
 } = useListPage<PlanInfo, PlanSearchForm>({
     fetchFn: (params) => planApi.list(params),
     deleteFn: (id) => planApi.destroy(id),
+    batchDeleteFn: (ids) => Promise.all(ids.map((id) => planApi.destroy(id))),
     defaultSearchForm: {
         keyword: '',
         status: ''
     }
 })
 
-// 弹窗状态
+const { t } = useI18n()
+
+const columns: ProColumn[] = [
+    { key: 'id', label: 'ID', prop: 'id', width: 80, required: true },
+    { key: 'code', label: t('plan.planCode'), prop: 'code', minWidth: 100, showOverflowTooltip: true },
+    { key: 'name', label: t('plan.planName'), prop: 'name', minWidth: 150, showOverflowTooltip: true },
+    { key: 'price_monthly', label: t('plan.priceMonthly'), prop: 'price_monthly', width: 120 },
+    { key: 'price_yearly', label: t('plan.priceYearly'), prop: 'price_yearly', width: 120 },
+    { key: 'storage_limit_bytes', label: t('plan.storageLimit'), prop: 'storage_limit_bytes', width: 140 },
+    { key: 'sort', label: t('common.sort'), prop: 'sort', width: 90, align: 'center' },
+    { key: 'status', label: t('common.status'), width: 100, align: 'center' },
+    { key: 'created_at', label: t('common.createdAt'), prop: 'created_at', minWidth: 160 },
+    { key: 'action', label: t('common.operation'), width: 180, fixed: 'right', required: true }
+]
+
 const formVisible = ref(false)
 const currentId = ref<number | undefined>(undefined)
 
@@ -202,31 +175,7 @@ function formatBytes(bytes: number | string | undefined | null): string {
 </script>
 
 <style lang="scss" scoped>
-.plan-container {
-    .search-card {
-        margin-bottom: 16px;
-    }
-
-    .table-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 16px;
-
-        .table-title {
-            font-size: 16px;
-            font-weight: 600;
-        }
-    }
-
-    .pagination {
-        margin-top: 16px;
-        display: flex;
-        justify-content: flex-end;
-    }
-
-    .text-gray-400 {
-        color: #9ca3af;
-    }
+.text-gray-400 {
+    color: #9ca3af;
 }
 </style>

@@ -1,7 +1,11 @@
 <template>
-    <div class="platform-menu-item" :class="{ active: active }" @click="$emit('click')">
-        <Icon :name="icon" :size="22" />
-        <span class="label">{{ title }}</span>
+    <div
+        class="nav-item flex flex-col items-center justify-center gap-2 py-4.5 px-1.5 rounded-10px cursor-pointer relative"
+        :class="{ active }"
+        @click="$emit('click')"
+    >
+        <i :class="[icon, 'nav-ic']" />
+        <span class="nav-label">{{ title }}</span>
     </div>
 </template>
 
@@ -25,42 +29,39 @@ const title = computed(() =>
 </script>
 
 <style lang="scss" scoped>
-.platform-menu-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 80px;
-    padding: 15px 0;
-    cursor: pointer;
-    transition:
-        background 0.2s ease,
-        color 0.2s ease;
-    color: rgba(255, 255, 255, 0.6);
-
-    .label {
-        font-size: 11px;
-        margin-top: 8px;
-        transition: color 0.2s;
-        text-align: center;
-        line-height: 1.2;
-        max-width: 70px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
+.nav-item {
+    color: rgba(255, 255, 255, 0.45);
+    transition: all 0.18s ease;
 
     &:hover {
-        background: rgba(255, 255, 255, 0.08);
-        color: #fff;
+        background: rgba(255, 255, 255, 0.05);
+        color: rgba(255, 255, 255, 0.8);
     }
 
     &.active {
-        background: rgba(var(--el-color-primary-rgb), 0.3);
+        background: linear-gradient(135deg, var(--brand-500), var(--brand-600));
+        box-shadow: 0 6px 18px var(--brand-shadow);
         color: #fff;
-
-        .label {
-            color: #fff;
-        }
     }
+}
+
+.nav-ic {
+    width: 22px;
+    height: 22px;
+    margin: 0;
+    display: block;
+    flex-shrink: 0;
+}
+
+.nav-label {
+    font-size: 12px;
+    line-height: 1;
+    letter-spacing: 0.2px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    color: inherit;
 }
 </style>

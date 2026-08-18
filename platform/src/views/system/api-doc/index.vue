@@ -1,51 +1,49 @@
 <template>
     <div class="api-doc-page">
-        <el-card shadow="never" class="!border-none">
-            <template #header>
-                <div class="flex justify-between items-center">
-                    <div class="flex items-center gap-3">
-                        <span class="text-lg font-bold">{{ $t('apiDoc.title') }}</span>
-                        <el-tag size="small" effect="plain">OpenAPI 3.0</el-tag>
-                        <el-radio-group v-model="apiType" size="small" @change="handleTypeChange">
-                            <el-radio-button value="platform">{{
-                                $t('apiDoc.platformApi')
-                            }}</el-radio-button>
-                            <el-radio-button value="admin">{{
-                                $t('apiDoc.tenantApi')
-                            }}</el-radio-button>
-                            <el-radio-button value="api">{{
-                                $t('apiDoc.frontendApi')
-                            }}</el-radio-button>
-                        </el-radio-group>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <el-tooltip :content="$t('apiDoc.openSwagger')" placement="bottom">
-                            <el-button type="primary" link @click="openSwaggerUI">
-                                <el-icon class="mr-1"><Link /></el-icon>
-                                Swagger UI
-                            </el-button>
-                        </el-tooltip>
-                        <el-tooltip :content="$t('apiDoc.downloadJson')" placement="bottom">
-                            <el-button type="primary" link @click="downloadJson">
-                                <el-icon class="mr-1"><Download /></el-icon>
-                                OpenAPI JSON
-                            </el-button>
-                        </el-tooltip>
-                    </div>
+        <div class="page-head">
+            <div>
+                <div class="page-title">{{ $t('apiDoc.title') }}</div>
+                <div class="page-desc">{{ $t('apiDoc.desc') }}</div>
+            </div>
+        </div>
+
+        <div class="set-card">
+            <div class="set-card-head">
+                <h3>{{ $t('apiDoc.title') }}</h3>
+                <el-tag size="small" effect="plain">OpenAPI 3.0</el-tag>
+                <el-radio-group v-model="apiType" size="small" @change="handleTypeChange">
+                    <el-radio-button value="platform">{{
+                        $t('apiDoc.platformApi')
+                    }}</el-radio-button>
+                    <el-radio-button value="admin">{{ $t('apiDoc.tenantApi') }}</el-radio-button>
+                    <el-radio-button value="api">{{ $t('apiDoc.frontendApi') }}</el-radio-button>
+                </el-radio-group>
+                <div class="api-doc-actions">
+                    <el-tooltip :content="$t('apiDoc.openSwagger')" placement="bottom">
+                        <el-button type="primary" link @click="openSwaggerUI">
+                            Swagger UI
+                        </el-button>
+                    </el-tooltip>
+                    <el-tooltip :content="$t('apiDoc.downloadJson')" placement="bottom">
+                        <el-button type="primary" link @click="downloadJson">
+                            OpenAPI JSON
+                        </el-button>
+                    </el-tooltip>
                 </div>
-            </template>
-
-            <div ref="swaggerContainer" class="swagger-wrapper"></div>
-
-            <el-empty v-if="loadError" :description="$t('apiDoc.loadFailed')">
-                <el-button type="primary" @click="initSwagger">{{ $t('apiDoc.retry') }}</el-button>
-            </el-empty>
-        </el-card>
+            </div>
+            <div class="set-card-body api-doc-body">
+                <div ref="swaggerContainer" class="swagger-wrapper"></div>
+                <el-empty v-if="loadError" :description="$t('apiDoc.loadFailed')">
+                    <el-button type="primary" @click="initSwagger">{{
+                        $t('apiDoc.retry')
+                    }}</el-button>
+                </el-empty>
+            </div>
+        </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { Download, Link } from '@element-plus/icons-vue'
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -150,7 +148,14 @@ onBeforeUnmount(() => {
 .api-doc-page {
     height: 100%;
 
-    :deep(.el-card__body) {
+    .api-doc-actions {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .api-doc-body {
         padding: 0;
     }
 

@@ -1,5 +1,12 @@
 <template>
     <div class="refund-container">
+        <div class="page-head">
+            <div>
+                <div class="page-title">{{ $t('refund.title') }}</div>
+                <div class="page-desc">{{ $t('refund.desc') }}</div>
+            </div>
+        </div>
+
         <!-- 搜索区域 -->
         <el-card class="search-card" shadow="never">
             <el-form :model="searchForm" inline class="search-form">
@@ -26,92 +33,53 @@
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="handleSearch">
-                        <el-icon><Search /></el-icon>
+                        <i class="i-svg:search" />
                         {{ $t('common.search') }}
                     </el-button>
                     <el-button @click="resetSearch">
-                        <el-icon><Refresh /></el-icon>
+                        <i class="i-svg:refresh-cw" />
                         {{ $t('common.reset') }}
                     </el-button>
                 </el-form-item>
             </el-form>
         </el-card>
 
-        <!-- 列表区域 -->
-        <el-card class="table-card" shadow="never">
-            <div class="table-header">
-                <div class="table-title">{{ $t('refund.title') }}</div>
-            </div>
-
-            <el-table v-loading="loading" :data="list" stripe>
-                <el-table-column label="ID" prop="id" width="80" />
-
-                <el-table-column
-                    :label="$t('refund.refundNo')"
-                    prop="refund_no"
-                    min-width="200"
-                    show-overflow-tooltip
-                />
-
-                <el-table-column :label="$t('order.tenantId')" prop="tenant_id" width="90" />
-
-                <el-table-column :label="$t('refund.amount')" width="120">
-                    <template #default="{ row }">
-                        ¥{{ (row.refund_amount / 100).toFixed(2) }}
-                    </template>
-                </el-table-column>
-
-                <el-table-column :label="$t('order.paymentChannel')" width="110">
-                    <template #default="{ row }">
-                        <el-tag size="small" effect="light">
-                            {{ channelLabel(row.payment_channel) }}
-                        </el-tag>
-                    </template>
-                </el-table-column>
-
-                <el-table-column :label="$t('common.status')" width="100" align="center">
-                    <template #default="{ row }">
-                        <el-tag :type="statusTagType(row.status)" size="small">
-                            {{ statusLabel(row.status) }}
-                        </el-tag>
-                    </template>
-                </el-table-column>
-
-                <el-table-column
-                    :label="$t('refund.reason')"
-                    prop="reason"
-                    min-width="160"
-                    show-overflow-tooltip
-                />
-
-                <el-table-column :label="$t('refund.applyTime')" prop="created_at" width="170" />
-
-                <el-table-column :label="$t('refund.completedTime')" width="170">
-                    <template #default="{ row }">
-                        {{ row.refunded_at || '—' }}
-                    </template>
-                </el-table-column>
-            </el-table>
-
-            <el-pagination
-                v-model:current-page="pagination.page"
-                v-model:page-size="pagination.limit"
-                :total="pagination.total"
-                :page-sizes="[10, 20, 50, 100]"
-                layout="total, sizes, prev, pager, next, jumper"
-                class="pagination"
-                @size-change="handleSizeChange"
-                @current-change="handlePageChange"
-            />
-        </el-card>
+        <ProTable
+            :title="$t('refund.title')"
+            storage-key="platform-refund-list"
+            :columns="columns"
+            :data="list"
+            :loading="loading"
+            :pagination="pagination"
+            @page-change="handlePageChange"
+            @size-change="handleSizeChange"
+        >
+            <template #refund_amount="{ row }">
+                ¥{{ (row.refund_amount / 100).toFixed(2) }}
+            </template>
+            <template #payment_channel="{ row }">
+                <el-tag size="small" effect="light">
+                    {{ channelLabel(row.payment_channel) }}
+                </el-tag>
+            </template>
+            <template #status="{ row }">
+                <el-tag :type="statusTagType(row.status)" size="small">
+                    {{ statusLabel(row.status) }}
+                </el-tag>
+            </template>
+            <template #refunded_at="{ row }">
+                {{ row.refunded_at || '—' }}
+            </template>
+        </ProTable>
     </div>
 </template>
 
 <script setup lang="ts" name="PlatformRefundList">
-import { Refresh, Search } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 
 import { refundApi } from '@/api/refund'
+import ProTable from '@/components/ProTable/index.vue'
+import type { ProColumn } from '@/components/ProTable/types'
 import { useListPage } from '@/hooks/useListPage'
 
 const { t } = useI18n()
@@ -137,6 +105,30 @@ const {
         keyword: ''
     }
 })
+
+const columns: ProColumn[] = [
+    { key: 'id', label: 'ID', prop: 'id', width: 80, required: true },
+    {
+        key: 'refund_no',
+        label: t('refund.refundNo'),
+        prop: 'refund_no',
+        minWidth: 200,
+        showOverflowTooltip: true
+    },
+    { key: 'tenant_id', label: t('order.tenantId'), prop: 'tenant_id', width: 100 },
+    { key: 'refund_amount', label: t('refund.amount'), width: 120 },
+    { key: 'payment_channel', label: t('order.paymentChannel'), width: 110 },
+    { key: 'status', label: t('common.status'), width: 100, align: 'center' },
+    {
+        key: 'reason',
+        label: t('refund.reason'),
+        prop: 'reason',
+        minWidth: 160,
+        showOverflowTooltip: true
+    },
+    { key: 'created_at', label: t('refund.applyTime'), prop: 'created_at', width: 170 },
+    { key: 'refunded_at', label: t('refund.completedTime'), width: 170 }
+]
 
 const statusLabel = (status: string) => {
     const map: Record<string, string> = {
@@ -167,29 +159,3 @@ const channelLabel = (channel: string) => {
 }
 </script>
 
-<style lang="scss" scoped>
-.refund-container {
-
-    .search-card {
-        margin-bottom: 16px;
-    }
-
-    .table-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 16px;
-
-        .table-title {
-            font-size: 16px;
-            font-weight: 600;
-        }
-    }
-
-    .pagination {
-        margin-top: 16px;
-        display: flex;
-        justify-content: flex-end;
-    }
-}
-</style>

@@ -4,80 +4,73 @@
         <div class="first-level h-full flex flex-col">
             <!-- Logo -->
             <div
-                class="flex items-center justify-center cursor-pointer h-[50px]"
+                class="sidebar-logo flex items-center justify-center cursor-pointer flex-shrink-0"
                 @click="router.push('/')"
             >
-                <img :src="logoSrc" class="w-[36px] h-[36px] rounded-lg" />
+                <img :src="logoSrc" class="w-[42px] h-[42px] object-contain" />
             </div>
 
-            <!-- Divider -->
-            <div class="border-t border-white/8 mx-3"></div>
-
-            <!-- Menu Items -->
-            <el-scrollbar class="flex-1 mt-1">
-                <div class="flex flex-col">
-                    <platform-menu-item
-                        v-for="item in topRoutes"
-                        :key="item.path"
-                        :route="item"
-                        :active="selectedFirst === item.path"
-                        @click="onFirstSelect(item)"
-                    />
-                </div>
-            </el-scrollbar>
+            <nav class="nav flex flex-col flex-1 px-2 py-3 gap-0.5 overflow-y-auto">
+                <platform-menu-item
+                    v-for="item in topRoutes"
+                    :key="item.path"
+                    :route="item"
+                    :active="selectedFirst === item.path"
+                    @click="onFirstSelect(item)"
+                />
+            </nav>
         </div>
 
         <!-- 二级菜单面板 -->
         <aside v-if="secondRoutes.length" class="second-level h-full flex flex-col">
-            <div v-if="selectedFirstRoute" class="second-menu-header">
-                <Icon
-                    v-if="selectedFirstRoute.meta?.icon"
-                    :name="selectedFirstRoute.meta.icon"
-                    size="18"
-                    class="text-[var(--el-color-primary)]"
-                />
+            <div v-if="selectedFirstRoute" class="sub-head flex items-center px-3.5 flex-shrink-0">
                 <span>{{
                     translateRouteTitle(selectedFirstRoute.meta?.title, selectedFirstRoute.name)
                 }}</span>
             </div>
             <el-scrollbar class="flex-1">
-                <el-menu
-                    :default-active="currentFullPath"
-                    router
-                    unique-opened
-                    class="h-full !border-none"
-                    background-color="transparent"
-                    text-color="var(--color-text-primary)"
-                    @select="onSecondSelect"
-                >
-                    <template v-for="item in secondRoutes" :key="item.path">
-                        <el-menu-item
-                            v-if="!visibleChildren(item).length"
-                            :index="resolvePath(item.path)"
-                            class="flex items-center"
-                        >
-                            <Icon v-if="item.meta?.icon" :name="item.meta.icon" size="20" />
-                            <span class="ml-2">{{
-                                translateRouteTitle(item.meta?.title, item.name)
-                            }}</span>
-                        </el-menu-item>
-                        <el-sub-menu v-else :index="resolvePath(item.path)">
-                            <template #title>
-                                <Icon v-if="item.meta?.icon" :name="item.meta.icon" size="20" />
-                                <span class="ml-2">{{
+                <div class="sub-list">
+                    <el-menu
+                        :default-active="currentFullPath"
+                        router
+                        unique-opened
+                        class="h-full !border-none"
+                        background-color="transparent"
+                        text-color="var(--ink-600)"
+                        @select="onSecondSelect"
+                    >
+                        <template v-for="item in secondRoutes" :key="item.path">
+                            <el-menu-item
+                                v-if="!visibleChildren(item).length"
+                                :index="resolvePath(item.path)"
+                                class="sub-item"
+                            >
+                                <span class="sub-dot" />
+                                <span class="sub-label">{{
                                     translateRouteTitle(item.meta?.title, item.name)
                                 }}</span>
-                            </template>
-                            <el-menu-item
-                                v-for="sub in visibleChildren(item)"
-                                :key="resolvePath(sub.path)"
-                                :index="resolvePath(sub.path)"
-                            >
-                                <span>{{ translateRouteTitle(sub.meta?.title, sub.name) }}</span>
                             </el-menu-item>
-                        </el-sub-menu>
-                    </template>
-                </el-menu>
+                            <el-sub-menu v-else :index="resolvePath(item.path)">
+                                <template #title>
+                                    <span class="sub-label">{{
+                                        translateRouteTitle(item.meta?.title, item.name)
+                                    }}</span>
+                                </template>
+                                <el-menu-item
+                                    v-for="sub in visibleChildren(item)"
+                                    :key="resolvePath(sub.path)"
+                                    :index="resolvePath(sub.path)"
+                                    class="sub-item"
+                                >
+                                    <span class="sub-dot" />
+                                    <span class="sub-label">{{
+                                        translateRouteTitle(sub.meta?.title, sub.name)
+                                    }}</span>
+                                </el-menu-item>
+                            </el-sub-menu>
+                        </template>
+                    </el-menu>
+                </div>
             </el-scrollbar>
         </aside>
     </div>
@@ -170,29 +163,116 @@ function resolvePath(p: string) {
 </script>
 
 <style lang="scss" scoped>
+.sidebar-logo {
+    height: var(--header-h);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
 .first-level {
-    width: 80px;
-    background-color: var(--color-sidebar-bg);
+    width: var(--sidebar-w);
+    background: #0f172a;
     overflow: hidden;
     flex-shrink: 0;
 }
 
 .second-level {
-    width: 180px;
-    background-color: var(--color-surface, #f8f9fb);
-    box-shadow: 1px 1px 4px rgba(0, 21, 41, 0.08);
+    width: var(--sidebar-sub-w, 180px);
+    background: #fff;
+    border-right: 1px solid var(--ink-100);
     flex-shrink: 0;
 }
 
-.second-menu-header {
+.nav {
+    &::-webkit-scrollbar {
+        width: 0;
+    }
+}
+
+.sub-head {
+    height: var(--header-h);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-900);
+    border-bottom: 1px solid var(--ink-100);
+    letter-spacing: 0.5px;
+}
+
+.sub-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+
+    &::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: var(--ink-200);
+        border-radius: 2px;
+    }
+}
+
+:deep(.el-menu-item.sub-item) {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 16px 20px;
-    font-weight: 600;
-    font-size: 15px;
-    color: var(--el-text-color-primary);
-    border-bottom: 1px solid var(--el-border-color-light, #f0f0f0);
+    padding: 8px 12px !important;
+    font-size: 13px;
+    color: var(--ink-600);
+    border-radius: 4px;
+    height: auto !important;
+    line-height: normal !important;
+    cursor: pointer;
+    transition: all 0.15s;
+
+    &:hover {
+        background: var(--ink-50) !important;
+        color: var(--ink-800) !important;
+    }
+
+    &.is-active {
+        background: var(--brand-50) !important;
+        color: var(--brand-600) !important;
+        font-weight: 500;
+
+        .sub-dot {
+            background: var(--brand-500);
+            box-shadow: 0 0 0 2px var(--brand-100);
+        }
+    }
+}
+
+.sub-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--ink-300);
     flex-shrink: 0;
+}
+
+.sub-label {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+:deep(.el-sub-menu .el-sub-menu__title) {
+    padding: 8px 12px !important;
+    font-size: 13px;
+    color: var(--ink-700);
+    font-weight: 500;
+    height: auto;
+    line-height: normal;
+    border-radius: 4px;
+
+    &:hover {
+        background: var(--ink-50) !important;
+        color: var(--ink-800) !important;
+    }
+}
+
+:deep(.el-menu--inline) {
+    background: transparent !important;
 }
 </style>

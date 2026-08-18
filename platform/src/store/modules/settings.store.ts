@@ -4,131 +4,93 @@
 import { isObject } from '@vue/shared'
 import { defineStore } from 'pinia'
 
-// 全局配置常量
 import { defaultSetting } from '@/constants'
-// 枚举：缓存键名称，请确保有该枚举文件
 import { SETTING_KEY } from '@/constants/cache'
-// 通用缓存工具
 import cache from '@/utils/cache'
-// 主题切换工具
-import { applyDarkClass, applyDarkTheme, setTheme } from '@/utils/theme'
+import { applySettings, COLOR_MAP } from '@/utils/theme'
 
 export interface SettingState {
     showDrawer: boolean
-    // 以下字段源自 defaultSetting
     showCrumb: boolean
     showLogo: boolean
     isUniqueOpened: boolean
     sideWidth: number
     sideTheme: string
-    sideDarkColor: string
     openMultipleTabs: boolean
-    layoutMode: 'classic' | 'sidebar'
-    themeMode: 'system' | 'light' | 'dark'
-    darkTheme: string
-    theme: string
-    successTheme: string
-    warningTheme: string
-    dangerTheme: string
-    errorTheme: string
-    infoTheme: string
-    _mediaCleanup: (() => void) | null
+    primaryColor: string
+    compact: boolean
+    sidebarLabels: boolean
+}
+
+function resolvePrimaryColor(cached: Record<string, unknown>): string {
+    const fromNew = typeof cached.primaryColor === 'string' ? cached.primaryColor : ''
+    const fromOld = typeof cached.theme === 'string' ? cached.theme : ''
+    if (fromNew && COLOR_MAP[fromNew]) return fromNew
+    if (fromOld && COLOR_MAP[fromOld]) return fromOld
+    return defaultSetting.primaryColor
 }
 
 export const useSettingStore = defineStore('setting', {
     state: (): SettingState => {
-        // 从缓存中读取上次保存的设置
         const storageSetting = cache.get(SETTING_KEY)
-
-        // 以 defaultSetting 中所有键作为初始值
-        const initialState: any = {
+        const initialState: SettingState = {
             showDrawer: false,
-            _mediaCleanup: null as (() => void) | null,
             ...defaultSetting
         }
 
-        // 如果缓存中是一个对象，则把缓存值覆盖到 initialState
         if (isObject(storageSetting)) {
-            Object.assign(initialState, storageSetting)
+            const cached = storageSetting as Record<string, unknown>
+            if (typeof cached.showCrumb === 'boolean') initialState.showCrumb = cached.showCrumb
+            if (typeof cached.showLogo === 'boolean') initialState.showLogo = cached.showLogo
+            if (typeof cached.isUniqueOpened === 'boolean') {
+                initialState.isUniqueOpened = cached.isUniqueOpened
+            }
+            if (typeof cached.sideWidth === 'number') initialState.sideWidth = cached.sideWidth
+            if (typeof cached.sideTheme === 'string') initialState.sideTheme = cached.sideTheme
+            if (typeof cached.openMultipleTabs === 'boolean') {
+                initialState.openMultipleTabs = cached.openMultipleTabs
+            }
+            if (typeof cached.compact === 'boolean') initialState.compact = cached.compact
+            if (typeof cached.sidebarLabels === 'boolean') {
+                initialState.sidebarLabels = cached.sidebarLabels
+            }
+            initialState.primaryColor = resolvePrimaryColor(cached)
         }
 
-        return initialState as SettingState
+        return initialState
     },
     actions: {
-        /** 修改单个配置项并同步到缓存 */
         setSetting<K extends keyof SettingState>(data: { key: K; value: SettingState[K] }): void {
             const { key, value } = data
             if (Object.prototype.hasOwnProperty.call(this, key)) {
-                // Pinia action 中 `this` 的类型是 store 实例（含 action 方法），
-                // 用 $patch 按 state key 赋值可以避免 TS 类型交集冲突，也等价直接赋值。
                 this.$patch({ [key]: value } as Partial<SettingState>)
             }
-            // 把除了 showDrawer / _mediaCleanup 外的设置保存到缓存中
             const settings: Partial<SettingState> = { ...this.$state }
-            delete (settings as any).showDrawer
-            delete (settings as any)._mediaCleanup
+            delete (settings as { showDrawer?: boolean }).showDrawer
             cache.set(SETTING_KEY, settings)
-        },
-
-        /** 切换深色/浅色主题 */
-        setTheme(isDark: boolean): void {
-            setTheme(
-                {
-                    primary: this.theme,
-                    success: this.successTheme,
-                    warning: this.warningTheme,
-                    danger: this.dangerTheme,
-                    error: this.errorTheme,
-                    info: this.infoTheme
-                },
-                isDark
-            )
-        },
-
-        /** 应用主题模式（system/light/dark），统一入口 */
-        applyThemeMode(): void {
-            // 清除之前的系统监听器
-            if (this._mediaCleanup) {
-                this._mediaCleanup()
-                this._mediaCleanup = null
-            }
-
-            const apply = (isDark: boolean) => {
-                applyDarkClass(isDark)
-                if (isDark) {
-                    applyDarkTheme(this.darkTheme)
-                } else {
-                    applyDarkTheme('')
-                }
-                this.setTheme(isDark)
-            }
-
-            if (this.themeMode === 'dark') {
-                apply(true)
-            } else if (this.themeMode === 'light') {
-                apply(false)
-            } else {
-                // system mode
-                const mq = window.matchMedia('(prefers-color-scheme: dark)')
-                apply(mq.matches)
-                const handler = (e: MediaQueryListEvent) => apply(e.matches)
-                mq.addEventListener('change', handler)
-                this._mediaCleanup = () => mq.removeEventListener('change', handler)
+            if (key === 'primaryColor' || key === 'compact' || key === 'sidebarLabels') {
+                this.apply()
             }
         },
 
-        /** 恢复默认主题（删除缓存并重置状态） */
+        apply(): void {
+            applySettings({
+                primaryColor: this.primaryColor,
+                compact: this.compact,
+                sidebarLabels: this.sidebarLabels
+            })
+        },
+
         resetTheme(): void {
-            // 把 defaultSetting 的所有键值覆盖回 this
             const defaults = defaultSetting as Partial<SettingState>
             ;(Object.keys(defaults) as (keyof SettingState)[]).forEach((key) => {
                 const value = defaults[key]
                 if (value !== undefined) {
-                    ;(this as any)[key] = value
+                    ;(this as unknown as Record<string, unknown>)[key as string] = value
                 }
             })
             cache.remove(SETTING_KEY)
-            this.applyThemeMode()
+            this.apply()
         }
     }
 })

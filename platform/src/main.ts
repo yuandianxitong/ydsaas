@@ -1,11 +1,12 @@
 // src/app/main.ts
 
-import 'element-plus/dist/index.css'
-import 'element-plus/theme-chalk/dark/css-vars.css'
+import 'element-plus/theme-chalk/src/message.scss'
+import 'element-plus/theme-chalk/src/message-box.scss'
+import 'element-plus/theme-chalk/src/notification.scss'
+import 'element-plus/theme-chalk/src/loading.scss'
 import '@/assets/fonts/stylesheet.css'
-import './theme/tokens.scss'
-import './theme/overrides/element-plus.scss'
-import './styles/index.scss'
+import '@/theme/index.scss'
+import '@/styles/index.scss'
 import 'virtual:uno.css'
 
 import { createPinia } from 'pinia'

@@ -1,94 +1,101 @@
-import colors from 'css-color-function'
-
-/** Toggle html.dark class */
-export const applyDarkClass = (isDark: boolean) => {
-    document.documentElement.classList.toggle('dark', isDark)
-}
-
-/** Set data-dark-theme attribute on html */
-export const applyDarkTheme = (theme: string) => {
-    if (theme) {
-        document.documentElement.setAttribute('data-dark-theme', theme)
-    } else {
-        document.documentElement.removeAttribute('data-dark-theme')
-    }
-}
-
-const lightConfig = {
-    'dark-2': 'shade(20%)',
-    'light-3': 'tint(30%)',
-    'light-5': 'tint(50%)',
-    'light-7': 'tint(70%)',
-    'light-8': 'tint(80%)',
-    'light-9': 'tint(90%)'
-}
-
-const darkConfig = {
-    'light-3': 'shade(20%)',
-    'light-5': 'shade(30%)',
-    'light-7': 'shade(50%)',
-    'light-8': 'shade(60%)',
-    'light-9': 'shade(70%)',
-    'dark-2': 'tint(20%)'
-}
-
-const themeId = 'theme-vars'
-
 /**
- * @author Jason
- * @description 用于生成elementui主题的行为变量
- * 可选值有primary、success、warning、danger、error、info
+ * Theme utilities — aligned with YDAdmin Pro / Shop.
+ * Light-only: setPrimaryColor, setCompact, setSidebarLabels.
  */
 
-export const generateVars = (color: string, type = 'primary', isDark = false) => {
-    const colos = {
-        [`--el-color-${type}`]: color
-    }
-    const config: Record<string, string> = isDark ? darkConfig : lightConfig
-    for (const key in config) {
-        colos[`--el-color-${type}-${key}`] = `color(${color} ${config[key]})`
-    }
-    return colos
+interface BrandPalette {
+    b500: string
+    b600: string
+    b400: string
+    b50: string
+    b100: string
+    shadow: string
 }
 
-/**
- * @author Jason
- * @description 用于设置css变量
- * @param key css变量key 如 --color-primary
- * @param value css变量值 如 #f40
- * @param dom dom元素
- */
-export const setCssVar = (key: string, value: string, dom = document.documentElement) => {
-    dom.style.setProperty(key, value)
+export const COLOR_MAP: Record<string, BrandPalette> = {
+    '#4f6bff': {
+        b500: '#4f6bff',
+        b600: '#3f58e6',
+        b400: '#7a8dff',
+        b50: '#eef1ff',
+        b100: '#dde3ff',
+        shadow: 'rgba(79, 107, 255, 0.35)'
+    },
+    '#0ea5e9': {
+        b500: '#0ea5e9',
+        b600: '#0284c7',
+        b400: '#38bdf8',
+        b50: '#e0f2fe',
+        b100: '#bae6fd',
+        shadow: 'rgba(14, 165, 233, 0.35)'
+    },
+    '#14b8a6': {
+        b500: '#14b8a6',
+        b600: '#0d9488',
+        b400: '#5eead4',
+        b50: '#e6fbf7',
+        b100: '#ccf5ed',
+        shadow: 'rgba(20, 184, 166, 0.35)'
+    },
+    '#8b5cf6': {
+        b500: '#8b5cf6',
+        b600: '#7c3aed',
+        b400: '#a78bfa',
+        b50: '#f3edff',
+        b100: '#e9dcff',
+        shadow: 'rgba(139, 92, 246, 0.35)'
+    },
+    '#f97316': {
+        b500: '#f97316',
+        b600: '#ea580c',
+        b400: '#fb923c',
+        b50: '#fff4e9',
+        b100: '#ffe1c6',
+        shadow: 'rgba(249, 115, 22, 0.35)'
+    }
 }
 
-/**
- * @author Jason
- * @description 设置主题
- */
-export const setTheme = (options: Record<string, string>, isDark = false) => {
-    const varsMap: Record<string, string> = Object.keys(options).reduce((prev, key) => {
-        return Object.assign(prev, generateVars(options[key], key, isDark))
-    }, {})
+export const PRESET_COLORS = Object.keys(COLOR_MAP)
 
-    let theme = Object.keys(varsMap).reduce((prev, key) => {
-        const color = colors.convert(varsMap[key])
-        return `${prev}${key}:${color};`
-    }, '')
-    theme = `:root{${theme}}`
-    let style = document.getElementById(themeId)
-    if (style) {
-        style.innerHTML = theme
-    } else {
-        style = document.createElement('style')
-        style.setAttribute('type', 'text/css')
-        style.setAttribute('id', themeId)
-        style.innerHTML = theme
-        document.head.append(style)
-    }
+const root = () => document.documentElement
 
-    // 同步更新设计 token 层的品牌色，让侧边栏等使用 --color-brand 的组件跟随变化
-    if (options.primary) {
-        setCssVar('--color-brand', options.primary)
-    }
+export function setPrimaryColor(color: string): void {
+    const palette = COLOR_MAP[color]
+    if (!palette) return
+
+    const el = root()
+    el.style.setProperty('--brand-500', palette.b500)
+    el.style.setProperty('--brand-600', palette.b600)
+    el.style.setProperty('--brand-400', palette.b400)
+    el.style.setProperty('--brand-50', palette.b50)
+    el.style.setProperty('--brand-100', palette.b100)
+    el.style.setProperty('--brand-shadow', palette.shadow)
+    el.style.setProperty('--el-color-primary', palette.b500)
+}
+
+export function setCompact(enabled: boolean): void {
+    document.body.classList.toggle('compact', enabled)
+}
+
+export function setSidebarLabels(show: boolean): void {
+    document.body.classList.toggle('hide-labels', !show)
+}
+
+/** Clear leftover dark-mode attributes from older platform settings. */
+export function clearLegacyDarkMode(): void {
+    const el = root()
+    el.classList.remove('dark')
+    el.removeAttribute('data-dark-theme')
+    el.removeAttribute('data-theme')
+}
+
+export function applySettings(settings: {
+    primaryColor: string
+    compact: boolean
+    sidebarLabels: boolean
+}): void {
+    clearLegacyDarkMode()
+    setPrimaryColor(settings.primaryColor)
+    setCompact(settings.compact)
+    setSidebarLabels(settings.sidebarLabels)
 }
